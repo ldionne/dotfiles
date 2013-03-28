@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+##
+## This script symlinks the user preferences for Sublime Text 2 to
+## those contained in $DOTFILES/sublime2
+##
+
+source $DOTFILES/setup/setup_utils
+set -e
+
+
+link_sublime_preferences() {
+    local sublime_dir="$HOME/Library/Application Support/Sublime Text 2/Packages"
+    for file in $DOTFILES/sublime2/User/*; do
+        local dest="$sublime_dir/User/$(basename $file)"
+
+        if [[ -L "$dest" ]]; then
+            info "$dest is already a symlink, skipping"
+            continue
+        elif [[ -f "$dest" ]]; then
+            mv "$dest" "${dest}.backup"
+        fi
+
+        link_files "$file" "$dest"
+    done
+}
+
+link_sublime_preferences
+success "preferences for Sublime Text 2 set"

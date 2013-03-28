@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+##
+## This script symlinks the dotfiles into $HOME.
+##
+
+source $DOTFILES/setup/setup_utils
+set -e
+
+
+install_dotfile() {
+    local symlink_file="$1"
+    local dotfile="$HOME/.$(basename "${symlink_file%.*}")"
+
+    if [[ -f "$dotfile" ]] || [[ -d "$dotfile" ]]; then
+        action=
+        until [[ $action =~ [obs] ]]; do
+            user "file already exists: $(basename $dotfile), what do you want to do? [s]kip, [o]verwrite, [b]ackup? "
+            read -n 1 action
+        done
+
+        case "$action" in
+            o|overwrite )
+                rm -rf "$dotfile"
+                success "removed $dotfile"
+                link_files "$symlink_file" "$dotfile"
+                ;;
+            b|backup )
+                mv "$dotfile" "${dotfile}.backup"
+                success "moved $dotfile to ${dotfile}.backup"
+                link_files "$symlink_file" "$dotfile"
+                ;;
+            s|skip )
+                success "skipped $dotfile"
+                ;;
+            * )
+                ((1 / 0)) # can't happen
+                ;;
+        esac
+
+    else
+        link_files "$symlink_file" "$dotfile"
+    fi
+}
+
+info "installing dotfiles"
+for symlink_file in $(find $DOTFILES -maxdepth 2 -name \*.symlink); do
+    install_dotfile "$symlink_file"
+done
+success "installed dotfiles"

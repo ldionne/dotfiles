@@ -1,4 +1,9 @@
 {
-	"font_size": 12.0,
-	"theme": "Soda Dark.sublime-theme"
+    "rulers": [ 78 ],
+    "tab_size": 4,
+    "translate_tabs_to_spaces": true,
+    "match_brackets_angle": true, // yay for C++ templates
+    "trim_trailing_white_space_on_save": true,
+    "highlight_modified_tabs": true,
+    "show_minimap": false
 }

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+##
+## This script performs the initial setup.
+##
+
+set -e
+export DOTFILES="`pwd`"
+source $DOTFILES/setup/setup_utils
+
+
+info "performing initial setup"
+
+$DOTFILES/setup/install_dotfiles
+$DOTFILES/setup/setup_sublime_preferences
+
+# If we are on a mac, set OS X preferences and install Homebrew formulae.
+if [ "$(uname -s)" == "Darwin" ]; then
+    $DOTFILES/setup/set_osx_preferences
+    $DOTFILES/setup/install_homebrew_formulae
+fi
+
+success "everything is done!"
