@@ -5,12 +5,17 @@
 ##
 
 set -e
-export DOTFILES="`pwd`"
-source $DOTFILES/setup/setup_utils
+export DOTFILES="$(pwd)"
+
+if [[ ! -d "$DOTFILES/custom" || ! -d "$DOTFILES/setup" ]]; then
+    echo "you must run this script from the root of the project"
+    exit 1
+fi
+
+source $DOTFILES/setup/utils
 
 
 info "performing initial setup"
-
 $DOTFILES/setup/install_dotfiles
 $DOTFILES/setup/setup_sublime_preferences
 
@@ -19,5 +24,4 @@ if [ "$(uname -s)" == "Darwin" ]; then
     $DOTFILES/setup/set_osx_preferences
     $DOTFILES/setup/install_homebrew_formulae
 fi
-
 success "everything is done!"

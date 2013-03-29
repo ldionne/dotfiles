@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+##
+## Utilities for performing the initial setup.
+##
+
+
+info() {
+    printf "  [ \033[00;34m..\033[0m ] $1\n"
+}
+
+user() {
+    printf "\r  [ \033[0;33m?\033[0m ] $1\n"
+}
+
+success() {
+    printf "\r\033[2K  [ \033[00;32mOK\033[0m ] $1\n"
+}
+
+fail() {
+    printf "\r\033[2K  [\033[0;31mFAIL\033[0m] $1\n"
+    exit 1
+}
+
+is_in_path() {
+    if command -v "${1}" &>/dev/null
+        then true
+        else false
+    fi
+}
+
+link_files() {
+    local src="$1"
+    local dst="$2"
+
+    do_link() { ln -s "$1" "$2" && success "$2 now points to $1"; }
+
+    if [[ -e "$dst" || -L "$dst" ]]; then
+        action=
+        until [[ $action =~ [obs] ]]; do
+            user "file already exists: "$(basename "$dst")", what do you want to do? [s]kip, [o]verwrite, [b]ackup? "
+            read -n 1 action
+        done
+
+        case "$action" in
+            o|overwrite )
+                rm -rf "$dst"
+                success "removed $dst"
+                do_link "$src" "$dst"
+                ;;
+            b|backup )
+                local backup="${dst}.pre-dotfiles"
+                mv "$dst" "$backup"
+                success "backed up $dst in $backup"
+                do_link "$src" "$dst"
+                ;;
+            s|skip )
+                success "skipped $dst"
+                ;;
+            * )
+                ((1 / 0)) # can't happen
+                ;;
+        esac
+
+    else
+        do_link "$src" "$dst"
+    fi
+}

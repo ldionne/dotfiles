@@ -4,8 +4,7 @@
 ## This script sets sane OS X preferences.
 ##
 
-source $DOTFILES/setup/setup_utils
-set -e
+source $DOTFILES/setup/utils
 
 
 ##############################################################################

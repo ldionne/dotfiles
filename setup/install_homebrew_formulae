@@ -4,14 +4,13 @@
 ## This installs Homebrew and several formulae.
 ##
 
-source $DOTFILES/setup/setup_utils
-set -e
+source $DOTFILES/setup/utils
 
 
 install_homebrew() {
     if ! is_in_path brew; then
         info "installing Homebrew"
-        ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go)"
+        ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go)" &&
         success "installed Homebrew"
     else
         info "Homebrew is already installed, skipping this step"
@@ -22,29 +21,28 @@ install_formula() {
     local formula="$1"
     if ! brew list | grep "$formula" &>/dev/null; then
         info "installing $formula"
-        brew install "$formula"
-        success "installed $formula"
+        brew install "$formula" && success "installed $formula"
     else
         success "$formula already installed with Homebrew"
     fi
 }
 
-install_formulae() {
-    local formulae=(
-        grc
-        coreutils
-        git
-        hub
-        python3
-        cmake
-        libusb  # dependency of DisplayLinkManager (3rd screen)
-    )
+FORMULAE=(
+    grc
+    coreutils
+    git
+    hub
+    python3
+    cmake
+    libusb  # dependency of DisplayLinkManager (3rd screen)
+)
 
+install_formulae() {
     if ! is_in_path brew; then
         fail "Homebrew must be installed before we can install formulae"
     fi
 
-    for formula in "${formulae[@]}"; do
+    for formula in "${FORMULAE[@]}"; do
         install_formula "$formula"
     done
 }

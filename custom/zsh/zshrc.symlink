@@ -1,8 +1,5 @@
-# shortcut to this dotfiles path is $DOTFILES
+# shortcut to access the dotfiles directory
 export DOTFILES=$HOME/.dotfiles
-
-# your project folder
-export PROJECTS=~/code
 
 # use .localrc for SUPER SECRET CRAP that you don't
 # want in your public, versioned repo.
@@ -12,7 +9,7 @@ fi
 
 # all of our zsh files
 typeset -U config_files
-config_files=($DOTFILES/**/*.zsh)
+config_files=($DOTFILES/custom/**/*.zsh)
 
 # load the path files
 for file in ${(M)config_files:#*/path.zsh}; do
