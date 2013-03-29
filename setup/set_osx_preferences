@@ -8,7 +8,7 @@ source $DOTFILES/setup/utils
 
 
 ##############################################################################
-# Finder                                                                     #
+# Finder
 ##############################################################################
 
 # Expand save panel by default
@@ -35,9 +35,6 @@ defaults write com.apple.finder QLEnableTextSelection -bool true
 # Disable the warning when changing a file extension
 defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 
-# Avoid creating .DS_Store files on network volumes
-defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
-
 # Enable snap-to-grid for desktop icons
 /usr/libexec/PlistBuddy -c                                                  \
     "Set :DesktopViewSettings:IconViewSettings:arrangeBy grid"              \
@@ -52,19 +49,56 @@ chflags nohidden ~/Library
 # Use AirDrop over every interface. srsly this should be a default.
 defaults write com.apple.NetworkBrowser BrowseAllInterfaces 1
 
-# Always open everything in Finder's list view. This is important.
+# Always open everything in Finder's list view.
 defaults write com.apple.Finder FXPreferredViewStyle Nlsv
 
 # Set the Finder prefs for showing a few different volumes on the Desktop.
 defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
 defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool true
 
-# Finder: show hidden files by default
+# Show hidden files by default.
 defaults write com.apple.finder AppleShowAllFiles -bool true
+
+# Make dialog boxes appear faster. For example, the `Save As' box emerges
+# from the window's title bar. Default is .2 seconds.
+defaults write NSGlobalDomain NSWindowResizeTime .001
 
 
 ##############################################################################
-# Keyboard                                                                   #
+# Dock
+##############################################################################
+
+# Enable spring-loading when hovering dock items.
+defaults write com.apple.dock enable-spring-load-actions-on-all-items -bool true
+
+
+##############################################################################
+# Mission control
+##############################################################################
+
+# Remove mission control animations.
+# Setting it to a smaller number will also remove the focus in expose.
+defaults write com.apple.dock expose-animation-duration -float 0.00001
+
+# When viewing all the open applications, one can zoom on a cluster by
+# scrolling. This makes the zoom larger so we can see the content of a file.
+defaults write com.apple.dock expose-cluster-scale -float 1
+
+# Disable the dashboard since I never use it anyways.
+defaults write com.apple.dashboard mcx-disabled -boolean true
+
+
+##############################################################################
+# Launchpad
+##############################################################################
+
+# Disable Launchpad fade in/out animations.
+defaults write com.apple.dock springboard-show-duration -int 0
+defaults write com.apple.dock springboard-hide-duration -int 0
+
+
+##############################################################################
+# Keyboard
 ##############################################################################
 
 # Disable press-and-hold for keys in favor of key repeat
@@ -79,7 +113,7 @@ defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
 
 ##############################################################################
-# Itunes                                                                     #
+# Itunes
 ##############################################################################
 
 # Disable the Ping sidebar in iTunes
@@ -90,7 +124,7 @@ defaults write com.apple.iTunes disablePing -bool true
 
 
 ##############################################################################
-# Mail                                                                       #
+# Mail
 ##############################################################################
 
 # Disable send and reply animations in Mail.app
@@ -100,5 +134,17 @@ defaults write com.apple.Mail DisableSendAnimations -bool true
 # Copy email addresses as `foo@example.com` instead of
 # `Foo Bar <foo@example.com>` in Mail.app
 defaults write com.apple.mail AddressesIncludeNameOnPasteboard -bool false
+
+
+##############################################################################
+# System/misc
+##############################################################################
+
+# Do not save documents to iCloud by default.
+defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
+
+# Avoid creating .DS_Store files on network volumes
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+
 
 success "OS X preferences set"
