@@ -9,10 +9,5 @@ source $DOTFILES/setup/utils
 
 
 SUBLIME_DIR="$HOME/Library/Application Support/Sublime Text 2/Packages"
-setup_sublime_preferences() {
-    for file in $DOTFILES/custom/sublime2/User/*; do
-        link_files "$file" "$SUBLIME_DIR/User/$(basename "$file")"
-    done
-}
-
-setup_sublime_preferences && success "preferences for Sublime Text 2 set"
+link_files "$DOTFILES/custom/sublime2/User" "$SUBLIME_DIR/User" &&
+success "preferences for Sublime Text 2 set"

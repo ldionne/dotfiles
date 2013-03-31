@@ -1,0 +1,11 @@
+{
+	"installed_packages":
+	[
+		"CMake",
+		"DashDoc",
+		"GitGutter",
+		"Markdown Preview",
+		"Package Control",
+		"SideBarEnhancements"
+	]
+}

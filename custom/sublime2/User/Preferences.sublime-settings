@@ -4,6 +4,5 @@
     "translate_tabs_to_spaces": true,
     "match_brackets_angle": true, // yay for C++ templates
     "trim_trailing_white_space_on_save": true,
-    "highlight_modified_tabs": true,
-    "hide_minimap": true
+    "highlight_modified_tabs": true
 }
