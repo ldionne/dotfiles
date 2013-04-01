@@ -1,8 +1,12 @@
 {
-    "rulers": [ 78 ],
-    "tab_size": 4,
-    "translate_tabs_to_spaces": true,
-    "match_brackets_angle": true, // yay for C++ templates
-    "trim_trailing_white_space_on_save": true,
-    "highlight_modified_tabs": true
+	"highlight_modified_tabs": true,
+	"match_brackets_angle": true,
+	"rulers":
+	[
+		78
+	],
+	"tab_size": 4,
+	"translate_tabs_to_spaces": true,
+	"trim_trailing_white_space_on_save": true,
+    "scroll_past_end": true
 }
