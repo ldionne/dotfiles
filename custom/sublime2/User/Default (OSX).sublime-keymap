@@ -1,2 +1,3 @@
 [
+    { "keys": ["ctrl+shift+r"], "command": "side_bar_move" }
 ]
