@@ -2,7 +2,7 @@
         protocol = https
 [user]
         name = Louis Dionne
-        email = louis.dionne92@gmail.com
+        email = ldionne.2@gmail.com
         helper = osxkeychain
 [alias]
         co = checkout
