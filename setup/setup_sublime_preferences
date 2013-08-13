@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 ##
-## This script symlinks the user preferences for Sublime Text 2 to
-## those contained in $DOTFILES/sublime2
+## This script symlinks the user preferences for Sublime Text 3 to
+## those contained in $DOTFILES/sublime3
 ##
 
 source $DOTFILES/setup/utils
 
 
-SUBLIME_DIR="$HOME/Library/Application Support/Sublime Text 2/Packages"
-link_files "$DOTFILES/custom/sublime2/User" "$SUBLIME_DIR/User" &&
-success "preferences for Sublime Text 2 set"
+SUBLIME_DIR="$HOME/Library/Application Support/Sublime Text 3/Packages"
+link_files "$DOTFILES/custom/sublime3/User" "$SUBLIME_DIR/User" &&
+success "preferences for Sublime Text 3 set"
