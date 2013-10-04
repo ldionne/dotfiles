@@ -2,8 +2,14 @@
 	"installed_packages":
 	[
 		"CMake",
+		"DashDoc",
+		"DocBlockr",
 		"GitGutter",
+		"Markdown Preview",
 		"Package Control",
-		"SideBarEnhancements"
+		"SideBarEnhancements",
+		"Strapdown Markdown Preview",
+		"SublimeGDB",
+		"SublimeGit"
 	]
 }
