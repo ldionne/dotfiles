@@ -113,6 +113,12 @@ defaults write com.apple.dock launchanim -bool false
 # Disable automatic quit of applicatins.
 defaults write -g NSDisableAutomaticTermination -bool true
 
+# Set the size of the dock
+defaults write com.apple.dock largesize -float 94
+
+# Disable dock magnification
+defaults write com.apple.dock magnification -bool false
+
 
 ##############################################################################
 # Mission control
@@ -269,4 +275,4 @@ defaults write com.apple.TextEdit RichText -int 0
 launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist
 
 
-success "OS X preferences set"
+success "OS X preferences set; some settings may need a restart to take effect"
