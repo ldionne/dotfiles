@@ -28,7 +28,6 @@ install_formula() {
 }
 
 FORMULAE=(
-    grc     # generic colourizer
     coreutils
     git
     hub
