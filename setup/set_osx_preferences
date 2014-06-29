@@ -162,6 +162,9 @@ defaults write com.apple.BezelServices kDim -bool true
 # Turn off keyboard illumination when computer is not used for 5 minutes
 defaults write com.apple.BezelServices kDimTime -int 300
 
+# Reduce the delay before keys are repeated when holding down a key
+defaults write -globalDomain InitialKeyRepeat -int 15
+
 
 ##############################################################################
 # Itunes
@@ -197,6 +200,8 @@ defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool
 # Enable drag with double click
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Dragging -bool true
 
+# global trackpad tracking speed (1...5)
+defaults write com.apple.trackpad.scaling -float 1.5
 
 ##############################################################################
 # Screen
