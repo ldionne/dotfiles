@@ -34,3 +34,4 @@
         default = simple
 [rebase]
         autosquash = true
+[credential]

@@ -5,10 +5,12 @@
 		"DashDoc",
 		"DocBlockr",
 		"GitGutter",
-		"Markdown Preview",
+		"LaTeXTools",
+		"MarkdownEditing",
+		"OCaml",
 		"Package Control",
 		"SideBarEnhancements",
-		"Strapdown Markdown Preview",
+		"SublimeERB",
 		"SublimeGDB",
 		"SublimeGit"
 	]

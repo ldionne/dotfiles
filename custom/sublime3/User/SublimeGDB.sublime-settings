@@ -1,6 +1,4 @@
 {
-    "workingdir": "/Users/ldionne/code/dyno",
-    "commandline": "gdb --interpreter=mi /Users/ldionne/code/dyno/build/test/feature_deadlocks_ABBA_recursive",
     "session_group": 3,
     "callstack_group": 1,
     "variables_group": 2,
@@ -12,4 +10,6 @@
         "cells": [[0, 0, 2, 1],
             [2, 0, 3, 1], [0, 1, 2, 2], [2, 1, 3, 2]]
     },
+    "i_know_how_to_use_gdb_thank_you_very_much": true,
+    "debug": false
 }
