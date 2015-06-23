@@ -1,10 +1,58 @@
 {
-	"font_size": 11,
+	"added_words":
+	[
+		"adjunctions",
+		"accessor",
+		"subobjects",
+		"subobject",
+		"misprediction",
+		"composability",
+		"composable",
+		"indices",
+		"programmatically",
+		"namespace"
+	],
+	"binary_file_patterns":
+	[
+		"debug/*",
+		"release/*",
+		"build/*",
+		"doc/gh-pages/*",
+		"*.o"
+	],
+	"color_scheme": "Packages/Color Scheme - Default/Monokai.tmTheme",
+	"dictionary": "Packages/Language - English/en_US.dic",
+	"file_exclude_patterns":
+	[
+		"*.pyc",
+		"*.pyo",
+		"*.exe",
+		"*.dll",
+		"*.obj",
+		"*.ncb",
+		"*.sdf",
+		"*.suo",
+		"*.pdb",
+		"*.idb",
+		".DS_Store",
+		"*.class",
+		"*.psd",
+		"*.db",
+		"*.sublime-workspace"
+	],
+	"font_size": 14,
 	"highlight_modified_tabs": true,
 	"ignored_packages":
 	[
-		"Vintage",
-		"Markdown"
+		"LaTeXing",
+		"Markdown",
+		"Vintage"
+	],
+	"ignored_words":
+	[
+		"Kleisli",
+		"metafunction",
+		"metaprogramming"
 	],
 	"match_brackets_angle": true,
 	"rulers":

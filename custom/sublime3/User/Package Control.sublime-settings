@@ -1,11 +1,18 @@
 {
+	"in_process_packages":
+	[
+	],
 	"installed_packages":
 	[
+		"C++11",
 		"CMake",
 		"DashDoc",
 		"DocBlockr",
+		"ExportHtml",
 		"GitGutter",
-		"LaTeXTools",
+		"GitHub Flavored Markdown Preview",
+		"Language - French - Français",
+		"LaTeXing",
 		"MarkdownEditing",
 		"OCaml",
 		"Package Control",
