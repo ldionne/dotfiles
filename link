@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+##############################################################################
+# Link each file in the `symlinks` directory to the corresponding file in `$HOME`.
+##############################################################################
+ln -s ${PWD}/symlinks/.gitconfig ${HOME}/.gitconfig
+ln -s ${PWD}/symlinks/.zshrc ${HOME}/.zshrc
+ln -s ${PWD}/symlinks/.gitignore ${HOME}/.gitignore
+echo "symlinked dotfiles in ${HOME}"
+
+##############################################################################
+# Link the `sublime3/User` directory to Sublime Text's User directory.
+##############################################################################
+ln -s "${PWD}/sublime3/User" "${HOME}/Library/Application Support/Sublime Text 3/Packages/User"
+ln -s "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" /usr/local/bin/subl
+echo "preferences for Sublime Text 3 set"
