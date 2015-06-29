@@ -29,6 +29,9 @@ if $(gls &>/dev/null); then
   alias la='gls -A --color'
 fi
 
+# Initialize rbenv
+command -v rbenv &>/dev/null && eval "$(rbenv init -)"
+
 ################################################################################
 # Environment variables
 ################################################################################
