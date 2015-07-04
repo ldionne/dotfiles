@@ -32,6 +32,9 @@ fi
 # Initialize rbenv
 command -v rbenv &>/dev/null && eval "$(rbenv init -)"
 
+# Make sure the [fn] + [delete] key results in a forward delete, not a ~.
+bindkey "^[[3~" delete-char
+
 ################################################################################
 # Environment variables
 ################################################################################
