@@ -10,7 +10,10 @@
 		"composable",
 		"indices",
 		"programmatically",
-		"namespace"
+		"namespace",
+		"tuples",
+		"tuple",
+		"behaviour"
 	],
 	"binary_file_patterns":
 	[
@@ -51,6 +54,7 @@
 	"ignored_words":
 	[
 		"Kleisli",
+		"constexpr",
 		"metafunction",
 		"metaprogramming"
 	],
