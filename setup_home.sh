@@ -7,7 +7,7 @@ ln -s ${PWD}/symlinks/.gitconfig ${HOME}/.gitconfig
 ln -s ${PWD}/symlinks/.gitignore ${HOME}/.gitignore
 ln -s ${PWD}/symlinks/.iterm2.zsh ${HOME}/.iterm2.zsh
 ln -s ${PWD}/symlinks/.zshrc ${HOME}/.zshrc
-echo "symlinked dotfiles in ${HOME}"
+echo "symlinked dotfiles into ${HOME}"
 
 ##############################################################################
 # Link the `sublime3/User` directory to Sublime Text's User directory.
