@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 ##############################################################################
-# Link each file in the `symlinks` directory to the corresponding file in `$HOME`.
+# Link each file or directory in the `symlinks` directory into `$HOME`.
 ##############################################################################
+ln -s ${PWD}/symlinks/.bin ${HOME}/.bin
 ln -s ${PWD}/symlinks/.gitconfig ${HOME}/.gitconfig
 ln -s ${PWD}/symlinks/.gitignore ${HOME}/.gitignore
 ln -s ${PWD}/symlinks/.iterm2.zsh ${HOME}/.iterm2.zsh
