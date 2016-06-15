@@ -52,3 +52,6 @@ test -e ${HOME}/.iterm2.zsh && source ${HOME}/.iterm2.zsh
 ################################################################################
 # Make sure the [fn] + [delete] key results in a forward delete, not a ~
 bindkey "^[[3~" delete-char
+
+# Load any private configurations that I don't want to push to GitHub
+[ -f ${HOME}/.zshrc.private ] && source ${HOME}/.zshrc.private
