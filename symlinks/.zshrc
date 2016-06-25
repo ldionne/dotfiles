@@ -47,6 +47,9 @@ command -v rbenv &>/dev/null && eval "$(rbenv init -)"
 # iTerm2
 test -e ${HOME}/.iterm2.zsh && source ${HOME}/.iterm2.zsh
 
+# zsh autocompletion
+autoload -Uz compinit && compinit
+
 ################################################################################
 # Miscellaneous
 ################################################################################
