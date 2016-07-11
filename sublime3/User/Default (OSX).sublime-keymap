@@ -4,6 +4,8 @@
     { "keys": ["ctrl+shift+ù"], "command": "show_panel", "args": {"panel": "console", "toggle": true} },
     { "keys": ["f8"], "command": "permute_lines", "args": {"operation": "unique"} },
     { "keys": ["shift+alt+r"], "command": "goto_definition" },
+    { "keys": ["alt+shift+minus"], "command": "jump_back" },
+    { "keys": ["alt+shift+="], "command": "jump_forward" },
 
     // Rewrite the bindings for f5, which was overwritten by SublimeGDB.
     // When SublimeGDB is not running, f5 will sort as usual. When it is
