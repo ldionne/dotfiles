@@ -17,8 +17,10 @@ alias gd='git diff'
 alias gc='git commit -v'
 alias gco='git checkout'
 alias gb='git branch'
-alias gs='git status -sb' # upgrade your git if -sb breaks for you. it's fun.
+alias gs='git status -sb'
 alias grm="git status | grep deleted | awk '{print \$3}' | xargs git rm"
+alias gsh='git show'
+alias gdc='git diff --cached'
 
 # grc overrides for ls (requires `brew install coreutils`)
 if command -v gls &>/dev/null; then
