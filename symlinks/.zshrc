@@ -60,3 +60,6 @@ bindkey "^[[3~" delete-char
 
 # Load any private configurations that I don't want to push to GitHub
 [ -f ${HOME}/.zshrc.private ] && source ${HOME}/.zshrc.private
+
+# Set a title for the current tab
+function title { echo -ne "\033]0;"$*"\007" }
