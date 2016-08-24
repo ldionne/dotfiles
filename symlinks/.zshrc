@@ -25,9 +25,8 @@ alias gdc='git diff --cached'
 # grc overrides for ls (requires `brew install coreutils`)
 if command -v gls &>/dev/null; then
     alias ls='gls -F --color'
-    alias l='gls -lAh --color'
-    alias ll='gls -l --color'
-    alias la='gls -A --color'
+    alias ll='gls -lAh --color'
+    alias la='gls -AF --color'
 fi
 
 ################################################################################
