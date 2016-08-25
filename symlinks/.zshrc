@@ -7,23 +7,23 @@ alias maek='make'
 commands -v hub &>/dev/null && alias git='hub'
 
 # More git aliases
-alias gti='git'
 alias g='git'
 alias ga='git add'
+alias gb='git branch'
+alias gc='git commit -v'
+alias gco='git checkout'
+alias gd='git diff'
+alias gdc='git diff --cached'
 alias gl='git pull'
 alias glog="git log --graph --pretty=format:'%Cred%h%Creset %an: %s - %Creset %C(yellow)%d%Creset %Cgreen(%cr)%Creset' --abbrev-commit --date=relative"
 alias gp='git push'
-alias gd='git diff'
-alias gc='git commit -v'
-alias gco='git checkout'
-alias gb='git branch'
-alias gs='git status -sb'
-alias grm="git status | grep deleted | awk '{print \$3}' | xargs git rm"
-alias gsh='git show'
-alias gdc='git diff --cached'
-alias gwt='git whatchanged'
 alias gr='git rebase'
 alias gri='git rebase --interactive'
+alias grm="git status | grep deleted | awk '{print \$3}' | xargs git rm"
+alias gs='git status -sb'
+alias gsh='git show'
+alias gti='git'
+alias gwt='git whatchanged'
 
 # grc overrides for ls (requires `brew install coreutils`)
 if command -v gls &>/dev/null; then
