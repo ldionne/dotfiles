@@ -21,6 +21,9 @@ alias gs='git status -sb'
 alias grm="git status | grep deleted | awk '{print \$3}' | xargs git rm"
 alias gsh='git show'
 alias gdc='git diff --cached'
+alias gwt='git whatchanged'
+alias gr='git rebase'
+alias gri='git rebase --interactive'
 
 # grc overrides for ls (requires `brew install coreutils`)
 if command -v gls &>/dev/null; then
