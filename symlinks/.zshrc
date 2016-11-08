@@ -54,6 +54,9 @@ test -e ${HOME}/.iterm2.zsh && source ${HOME}/.iterm2.zsh
 # zsh autocompletion
 autoload -Uz compinit && compinit
 
+# fzf key bindings
+[ -f ${HOME}/.fzf.zsh ] && source ${HOME}/.fzf.zsh
+
 ################################################################################
 # Miscellaneous
 ################################################################################

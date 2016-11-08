@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
+set -e
+
 ##############################################################################
 # Link each file or directory in the `symlinks` directory into `$HOME`.
 ##############################################################################
 [ -d ${HOME}/.bin ] || ln -s ${PWD}/symlinks/.bin ${HOME}/.bin
-ln -s ${PWD}/symlinks/.gitconfig ${HOME}/.gitconfig
-ln -s ${PWD}/symlinks/.gitignore ${HOME}/.gitignore
-ln -s ${PWD}/symlinks/.iterm2.zsh ${HOME}/.iterm2.zsh
-ln -s ${PWD}/symlinks/.zshrc ${HOME}/.zshrc
+for file in .fzf.zsh .gitconfig .gitignore .iterm2.zsh .zshrc; do
+  [[ -L ${HOME}/${file} ]] || ln -s ${PWD}/symlinks/${file} ${HOME}/${file}
+done
 echo "symlinked dotfiles into ${HOME}"
 
 ##############################################################################
