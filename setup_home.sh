@@ -16,5 +16,4 @@ echo "symlinked dotfiles into ${HOME}"
 ##############################################################################
 SUBLIME_DATA_DIR="${HOME}/Library/Application Support/Sublime Text 3"
 [ -d "${SUBLIME_DATA_DIR}/Packages/User" ] || ln -s "${PWD}/sublime3/User" "${SUBLIME_DATA_DIR}/Packages/User"
-ln -s "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" /usr/local/bin/subl
 echo "preferences for Sublime Text 3 set"
