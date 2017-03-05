@@ -21,6 +21,7 @@ alias gr='git rebase'
 alias gri='git rebase --interactive'
 alias grm="git status | grep deleted | awk '{print \$3}' | xargs git rm"
 alias gs='git status -sb'
+alias gsb='gs && gb'
 alias gsh='git show'
 alias gti='git'
 alias gwt='git whatchanged'
