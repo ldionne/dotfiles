@@ -72,3 +72,9 @@ bindkey "^[[3~" delete-char
 
 # Set a title for the current tab
 function title { echo -ne "\033]0;"$*"\007" }
+
+# Restart all failed Travis jobs of a numbered build
+function travis_restart_failed() {
+  build=${1}
+  travis show ${build} | grep -E "failed|errored" | grep "#" | cut -d " " -f 1 | cut -c 2- | xargs -L 1 travis restart
+}
