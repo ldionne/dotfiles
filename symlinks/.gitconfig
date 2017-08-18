@@ -11,6 +11,7 @@
         count   = !git shortlog -sn
         unstage = reset HEAD
         submodule-rm = !git-submodule-rm
+        addnw = !sh -c 'git diff -U0 -w --no-color "$@" | git apply --cached --ignore-whitespace --unidiff-zero -'
 [color]
         diff = auto
         status = auto
