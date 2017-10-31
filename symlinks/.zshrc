@@ -53,7 +53,7 @@ export HISTFILE=${HOME}/.zsh_history # File where history is kept
 command -v rbenv &>/dev/null && eval "$(rbenv init -)"
 
 # iTerm2
-test -e ${HOME}/.iterm2.zsh && source ${HOME}/.iterm2.zsh
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 # zsh autocompletion
 autoload -Uz compinit && compinit
