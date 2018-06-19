@@ -4,6 +4,10 @@
         name = Louis Dionne
         email = ldionne.2@gmail.com
         helper = osxkeychain
+
+[includeIf "gitdir:~/work/"]
+    path = ~/work/.gitconfig
+
 [alias]
         co = checkout
         promote = !git-promote
