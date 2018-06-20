@@ -48,9 +48,6 @@
 	"highlight_modified_tabs": true,
 	"ignored_packages":
 	[
-		"LaTeXing",
-		"Markdown",
-		"Vintage"
 	],
 	"ignored_words":
 	[
