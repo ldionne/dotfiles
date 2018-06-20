@@ -1,13 +1,3 @@
 {
-	"extensions":
-	[
-		"cc",
-		"cxx",
-		"c++",
-		"h",
-		"hxx",
-		"h++",
-		"inl",
-		"ipp"
-	]
+	"extensions": []
 }
