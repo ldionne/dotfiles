@@ -78,3 +78,10 @@ function travis_restart_failed() {
   build=${1}
   travis show ${build} | grep -E "failed|errored" | grep "#" | cut -d " " -f 1 | cut -c 2- | xargs -L 1 travis restart
 }
+
+# Function to download WG21 papers
+function download-paper() {
+    paper="${1}"
+    url="$(curl --silent "https://wg21.link/${paper}" | cut -f 4 -d ' ')"
+    wget "${url}"
+}
