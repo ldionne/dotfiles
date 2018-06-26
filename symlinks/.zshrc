@@ -85,3 +85,15 @@ function download-paper() {
     url="$(curl --silent "https://wg21.link/${paper}" | cut -f 4 -d ' ')"
     wget "${url}"
 }
+
+# Utilities to work with LLVM lit
+function git-repo-root() {
+    git rev-parse --show-toplevel
+}
+
+function find-llvm-lit() {
+    root="${1}"
+    realpath "$(find "${root}" -type f -perm +111 -name llvm-lit -print)"
+}
+
+alias lit='$(find-llvm-lit $(git-repo-root))'
