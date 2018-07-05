@@ -97,3 +97,10 @@ function find-llvm-lit() {
 }
 
 alias lit='$(find-llvm-lit $(git-repo-root))'
+
+# Get the SVN revision from a git commit in the LLVM monorepo
+function llvm-svn-rev() {
+    commit="${1}"
+    svn="$(git show "${commit}" | grep git-svn-rev | cut -d ':' -f 2 | tr -d '[:space:]')"
+    echo "r${svn}"
+}
