@@ -105,3 +105,22 @@ function llvm-svn-rev() {
     svn="$(git show "${commit}" | grep git-svn-rev | cut -d ':' -f 2 | tr -d '[:space:]')"
     echo "r${svn}"
 }
+
+# Detects the sysroot of a Clang compiler and echoes it.
+function detect-clang-sysroot() {
+    cxx=${1}
+    current_is_sysroot=false
+    for arg in $(echo | ${cxx} -v -x c++ - 2>&1 | grep isysroot); do
+        case "${arg}" in
+            -isysroot)
+            current_is_sysroot=true
+            ;;
+            *)
+            if [[ "${current_is_sysroot}" = true ]]; then
+                echo "${arg}"
+                break
+            fi
+            ;;
+        esac
+    done
+}
