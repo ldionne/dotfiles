@@ -124,3 +124,9 @@ function detect-clang-sysroot() {
         esac
     done
 }
+
+# Detect the Cellar path of a Homebrew package
+function brew-path() {
+    formula=${1}
+    brew info "${formula}" | grep Cellar | cut -d ' ' -f 1
+}
