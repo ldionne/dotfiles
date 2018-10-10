@@ -3,7 +3,6 @@
 [user]
         name = Louis Dionne
         email = ldionne.2@gmail.com
-        helper = osxkeychain
 [includeIf "gitdir:~/work/"]
         path = .gitconfig-work
 [alias]
@@ -38,3 +37,5 @@
         default = simple
 [rebase]
         autosquash = true
+[credential]
+	helper = osxkeychain
