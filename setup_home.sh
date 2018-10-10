@@ -11,7 +11,7 @@ echo "***********************************************"
 echo "* symlinking dotfiles into ${HOME}"
 echo "***********************************************"
 
-for file in .fzf.zsh .gitconfig .gitignore .zshrc .bin; do
+for file in .fzf.zsh .gitconfig .gitconfig-work .gitignore .zshrc .bin; do
   dest="${HOME}/${file}"
   source="${DOTFILES_ROOT}/symlinks/${file}"
   if [[ ! -L "${dest}" ]]; then

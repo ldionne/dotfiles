@@ -4,10 +4,8 @@
         name = Louis Dionne
         email = ldionne.2@gmail.com
         helper = osxkeychain
-
 [includeIf "gitdir:~/work/"]
-    path = ~/work/.gitconfig
-
+        path = .gitconfig-work
 [alias]
         co = checkout
         promote = !git-promote
@@ -40,4 +38,3 @@
         default = simple
 [rebase]
         autosquash = true
-[credential]
