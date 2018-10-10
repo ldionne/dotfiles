@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ##
-## This script sets sane OS X preferences.
+## This script sets a few OS X preferences to improve productivity.
 ##
 
 ##############################################################################
@@ -41,9 +41,6 @@ defaults write com.apple.finder WarnOnEmptyTrash -bool false
 
 # Show the ~/Library folder
 chflags nohidden ~/Library
-
-# Use AirDrop over every interface. srsly this should be a default.
-defaults write com.apple.NetworkBrowser BrowseAllInterfaces 1
 
 # Use list view in all Finder windows by default
 # Four-letter codes for the other view modes: `icnv`, `Nlsv`, `Flwv`
@@ -96,17 +93,10 @@ defaults write com.apple.dock autohide-time-modifier -float 0
 # Make Dock icons of hidden applications translucent
 defaults write com.apple.dock showhidden -bool true
 
-# Don’t group windows by application in Mission Control
-# (i.e. use the old Exposé behavior instead)
-defaults write com.apple.dock expose-group-by-app -bool false
-
 # Show indicator lights for open applications in the Dock
 defaults write com.apple.dock show-process-indicators -bool true
 
-# Don’t animate opening applications from the Dock
-defaults write com.apple.dock launchanim -bool false
-
-# Disable automatic quit of applicatins.
+# Disable automatic quit of applications.
 defaults write -g NSDisableAutomaticTermination -bool true
 
 # Set the size of the dock
@@ -114,34 +104,6 @@ defaults write com.apple.dock largesize -float 94
 
 # Disable dock magnification
 defaults write com.apple.dock magnification -bool false
-
-
-##############################################################################
-# Mission control
-##############################################################################
-
-# Remove mission control animations.
-# Setting it to a smaller number will also remove the focus in expose.
-defaults write com.apple.dock expose-animation-duration -float 0.00001
-
-# When viewing all the open applications, one can zoom on a cluster by
-# scrolling. This makes the zoom larger so we can see the content of a file.
-defaults write com.apple.dock expose-cluster-scale -float 1
-
-# Disable the dashboard since I never use it anyways.
-defaults write com.apple.dashboard mcx-disabled -boolean true
-
-
-##############################################################################
-# Launchpad
-##############################################################################
-
-# Disable Launchpad fade in/out animations.
-defaults write com.apple.dock springboard-show-duration -int 0
-defaults write com.apple.dock springboard-hide-duration -int 0
-
-# Disable Launchpad swipe animation.
- defaults write com.apple.dock springboard-page-duration -int 0
 
 
 ##############################################################################
@@ -158,34 +120,12 @@ defaults write NSGlobalDomain KeyRepeat -int 0
 # Essentially allows tabbing in modal dialogs
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
-# Automatically illuminate built-in MacBook keyboard in low light
-defaults write com.apple.BezelServices kDim -bool true
-
-# Turn off keyboard illumination when computer is not used for 5 minutes
-defaults write com.apple.BezelServices kDimTime -int 300
-
 # Reduce the delay before keys are repeated when holding down a key
 defaults write -globalDomain InitialKeyRepeat -int 15
-
-
-##############################################################################
-# Itunes
-##############################################################################
-
-# Disable the Ping sidebar in iTunes
-defaults write com.apple.iTunes disablePingSidebar -bool true
-
-# Disable all the other Ping stuff in iTunes
-defaults write com.apple.iTunes disablePing -bool true
-
 
 ##############################################################################
 # Mail
 ##############################################################################
-
-# Disable send and reply animations in Mail.app
-defaults write com.apple.Mail DisableReplyAnimations -bool true
-defaults write com.apple.Mail DisableSendAnimations -bool true
 
 # Copy email addresses as `foo@example.com` instead of
 # `Foo Bar <foo@example.com>` in Mail.app
@@ -205,61 +145,10 @@ defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Dragging -bool
 # global trackpad tracking speed (1...5)
 defaults write com.apple.trackpad.scaling -float 1.5
 
-##############################################################################
-# Screen
-##############################################################################
-
-# Save screenshots to the desktop
-defaults write com.apple.screencapture location -string "$HOME/Desktop"
-
-# Save screenshots in PNG format (other options: BMP, GIF, JPG, PDF, TIFF)
-defaults write com.apple.screencapture type -string "png"
-
-# Enable subpixel font rendering on non-Apple LCDs
-defaults write NSGlobalDomain AppleFontSmoothing -int 2
-
-# Disable shadow in screenshots
-defaults write com.apple.screencapture disable-shadow -bool true
-
-
-##############################################################################
-# Filesystem, network
-##############################################################################
-
-# Save to disk instead of iCloud by default
-defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
-
-# Avoid creating .DS_Store files on network volumes
-defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
-
-# Enable AirDrop over Ethernet and on unsupported Macs running Lion
-defaults write com.apple.NetworkBrowser BrowseAllInterfaces -bool true
-
-# Prevent Time Machine from prompting to use new hard drives as backup volume
-defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
-
-
-##############################################################################
-# Debug menus
-##############################################################################
-
-# Enable Safari’s debug menu
-defaults write com.apple.Safari IncludeInternalDebugMenu -bool true
-
-# Enable the debug menu in Disk Utility
-defaults write com.apple.DiskUtility DUDebugMenuEnabled -bool true
-defaults write com.apple.DiskUtility advanced-image-options -bool true
-
-# Enable the debug menu in Address Book
-defaults write com.apple.addressbook ABShowDebugMenu -bool true
-
 
 ##############################################################################
 # System/misc
 ##############################################################################
-
-# Check for software updates daily, not just once per week
-defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
 
 # Disable auto-correct
 defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
