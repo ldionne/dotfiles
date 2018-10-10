@@ -113,15 +113,9 @@ defaults write com.apple.dock magnification -bool false
 # Disable press-and-hold for keys in favor of key repeat
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
-# Set a blazingly fast keyboard repeat rate
-defaults write NSGlobalDomain KeyRepeat -int 0
-
 # Enable full keyboard access for all controls
 # Essentially allows tabbing in modal dialogs
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
-
-# Reduce the delay before keys are repeated when holding down a key
-defaults write -globalDomain InitialKeyRepeat -int 15
 
 ##############################################################################
 # Mail
