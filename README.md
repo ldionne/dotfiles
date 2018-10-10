@@ -2,6 +2,10 @@
 
 ## Usage
 
-Clone the repository in a home directory, for example in `~/.dotfiles`, and
-then execute the `setup_home.sh` script. Optionally, if on OS X,
-`setup_osx_defaults.sh` can be used to setup sane OS X preferences.
+```
+git clone https://github.com/ldionne/dotfiles.git "${HOME}/.dotfiles"
+cd "${HOME}/.dotfiles"
+./setup_home.sh
+./setup_osx_defaults.sh # On OS X only
+./homebrew_install.sh # On OS X only
+```
