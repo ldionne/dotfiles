@@ -46,19 +46,25 @@ export HISTFILE=${HOME}/.zsh_history # File where history is kept
 # Initialize integrations
 ################################################################################
 # Travis gem
-[ -f ${HOME}/.travis/travis.sh ] && source ${HOME}/.travis/travis.sh
+if [[ -f "${HOME}/.travis/travis.sh" ]]; then
+    source "${HOME}/.travis/travis.sh"
+fi
 
 # rbenv
 command -v rbenv &>/dev/null && eval "$(rbenv init -)"
 
 # iTerm2
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+if [[ -f "${HOME}/.iterm2_shell_integration.zsh" ]]; then
+    source "${HOME}/.iterm2_shell_integration.zsh"
+fi
 
 # zsh autocompletion
 autoload -Uz compinit && compinit
 
 # fzf key bindings
-[ -f ${HOME}/.fzf.zsh ] && source ${HOME}/.fzf.zsh
+if [[ -f "${HOME}/.fzf.zsh" ]]; then
+    source "${HOME}/.fzf.zsh"
+fi
 
 ################################################################################
 # Miscellaneous
@@ -67,7 +73,9 @@ autoload -Uz compinit && compinit
 bindkey "^[[3~" delete-char
 
 # Load any private configurations that I don't want to push to GitHub
-[ -f ${HOME}/.zshrc.private ] && source ${HOME}/.zshrc.private
+if [[ -f "${HOME}/.zshrc.private" ]]; then
+    source "${HOME}/.zshrc.private"
+fi
 export PATH="${HOME}/.bin.private:${PATH}"
 
 # Set a title for the current tab
