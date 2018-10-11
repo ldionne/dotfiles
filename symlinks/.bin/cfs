@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+
+set -e
+
+PROGNAME="$(basename "${0}")"
+function usage() {
+cat <<EOF
+Usage:
+${PROGNAME} clone --release <RELEASE> <REPO>
+${PROGNAME} cmake <REPO>
+${PROGNAME} update <REPO>
+${PROGNAME} install <REPO>
+${PROGNAME} test <REPO>
+EOF
+}
+
+function main() {
+    for arg in $@; do
+        if [[ "${arg}" == "-h" || "${arg}" == "--help" ]]; then
+            usage
+            exit 0
+        fi
+    done
+
+    case ${1} in
+        clone|cmake|update|install|test)
+            action="${1}"
+            shift
+            ;;
+        *)
+            echo "Invalid action '${1}'"
+            usage
+            exit 1
+            ;;
+    esac
+
+    do-${action} $@
+}
+
+CANONICAL_LLVM_REPO="${HOME}/.canonical_llvm_repo"
+function _update_canonical_repo() {
+    if [[ ! -d "${CANONICAL_LLVM_REPO}" ]]; then
+        echo "Setting up canonical repository for LLVM sources at '${CANONICAL_LLVM_REPO}' (one-time only)"
+        git clone --mirror https://github.com/llvm-project/llvm-project-20170507 "${CANONICAL_LLVM_REPO}"
+    else
+        echo "Updating canonical LLVM repository with the latest sources"
+        git -C "${CANONICAL_LLVM_REPO}" fetch --all
+    fi
+}
+
+function do-clone() {
+    while [[ $# -gt 0 ]]; do
+    case ${1} in
+        --release)
+            release="${2}"
+            shift
+            shift
+            ;;
+        *)
+            REPO_ROOT="$(realpath "${1}")"
+            shift
+        ;;
+    esac
+    done
+
+    case ${release} in
+        4.0.0) sha=RELEASE_400/final ;;
+        4.0.1) sha=RELEASE_401/final ;;
+        5.0.0) sha=RELEASE_500/final ;;
+        5.0.1) sha=RELEASE_501/final ;;
+        6.0.0) sha=release_600 ;;
+        6.0.1) sha=release_601 ;;
+        7.0.0) sha=RELEASE_700/final ;;
+        trunk) sha=master ;;
+        *)
+            echo "Unknown release '${release}'"
+            exit 1
+            ;;
+    esac
+
+    if [[ -e "${REPO_ROOT}" ]]; then
+        "Repository '${REPO_ROOT}' already exists: not overwriting it"
+        exit 1
+    fi
+
+    _update_canonical_repo
+    git clone --shared "${CANONICAL_LLVM_REPO}" "${REPO_ROOT}"
+    git -C "${REPO_ROOT}" checkout "${sha}"
+}
+
+function do-cmake() {
+    REPO_ROOT="$(realpath "${1}")"
+    shift
+
+    if [[ ! -d "${REPO_ROOT}" ]]; then
+        echo "Invalid repository '${REPO_ROOT}'"
+        exit 1
+    fi
+
+    LLVM_ROOT="${REPO_ROOT}/llvm"
+    BUILD_DIR="${REPO_ROOT}/build"
+    INSTALL_DIR="${REPO_ROOT}/install"
+
+    rm -rf "${BUILD_DIR}"
+    mkdir -p "${BUILD_DIR}"
+    (cd "${BUILD_DIR}" &&
+        cmake "${LLVM_ROOT}" -GNinja \
+                             -DCMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
+                             -DLLVM_ENABLE_PROJECTS="clang;libcxx;libcxxabi;libunwind;compiler-rt" \
+                             -DCMAKE_BUILD_TYPE=RelWithDebInfo)
+}
+
+function do-update() {
+    REPO_ROOT="$(realpath "${1}")"
+    shift
+
+    if [[ ! -d "${REPO_ROOT}" ]]; then
+        echo "Invalid repository '${REPO_ROOT}'"
+        exit 1
+    fi
+
+    _update_canonical_repo
+    git -C "${REPO_ROOT}" pull
+    do-install "${REPO_ROOT}"
+}
+
+function do-install() {
+    REPO_ROOT="$(realpath "${1}")"
+    shift
+
+    if [[ ! -d "${REPO_ROOT}" ]]; then
+        echo "Invalid repository '${REPO_ROOT}'"
+        exit 1
+    fi
+
+    BUILD_DIR="${REPO_ROOT}/build"
+    INSTALL_DIR="${REPO_ROOT}/install"
+    ninja -C "${BUILD_DIR}"
+    rm -rf "${INSTALL_DIR}"
+    ninja -C "${BUILD_DIR}" install
+}
+
+function do-test() {
+    REPO_ROOT="$(realpath "${1}")"
+    shift
+
+    if [[ ! -d "${REPO_ROOT}" ]]; then
+        echo "Invalid repository '${REPO_ROOT}'"
+        exit 1
+    fi
+
+    ninja -C "${BUILD_DIR}" check-cxx check-cxxabi check-unwind check-clang check-compiler-rt
+}
+
+main $@
