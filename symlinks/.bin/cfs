@@ -64,12 +64,26 @@ function do-clone() {
     done
 
     case ${release} in
+        3.0.x) sha=release_30 ;;
+        3.1.x) sha=release_31 ;;
+        3.2.x) sha=release_32 ;;
+        3.3.x) sha=release_33 ;;
+        3.4.x) sha=release_34 ;;
+        3.5.x) sha=release_35 ;;
+        3.6.x) sha=release_36 ;;
+        3.7.x) sha=release_37 ;;
+        3.8.x) sha=release_38 ;;
+        3.9.x) sha=release_39 ;;
+        4.x)   sha=release_40 ;;
         4.0.0) sha=RELEASE_400/final ;;
         4.0.1) sha=RELEASE_401/final ;;
+        5.x)   sha=release_50 ;;
         5.0.0) sha=RELEASE_500/final ;;
         5.0.1) sha=RELEASE_501/final ;;
+        6.x)   sha=release_60 ;;
         6.0.0) sha=release_600 ;;
         6.0.1) sha=release_601 ;;
+        7.x)   sha=release_70 ;;
         7.0.0) sha=RELEASE_700/final ;;
         trunk) sha=master ;;
         *)
@@ -120,7 +134,7 @@ function do-update() {
     fi
 
     _update_canonical_repo
-    git -C "${REPO_ROOT}" pull
+    git -C "${REPO_ROOT}" pull # TODO: This only works if we're on a branch, not on a tag
     do-install "${REPO_ROOT}"
 }
 
