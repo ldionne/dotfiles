@@ -150,9 +150,13 @@ function do-install() {
 
     BUILD_DIR="${REPO_ROOT}/build"
     INSTALL_DIR="${REPO_ROOT}/install"
-    ninja -C "${BUILD_DIR}"
+
+    if [[ ! -d "${BUILD_DIR}" ]]; then
+        do-cmake "${REPO_ROOT}"
+    fi
+
     rm -rf "${INSTALL_DIR}"
-    ninja -C "${BUILD_DIR}" install
+    ninja -C "${BUILD_DIR}" install-{clang,cxx,cxxabi,unwind,tsan,asan,lsan,ubsan,clang-format,clang-tidy,clang-headers}
 }
 
 function do-clean() {
@@ -175,6 +179,13 @@ function do-test() {
     if [[ ! -d "${REPO_ROOT}" ]]; then
         echo "Invalid repository '${REPO_ROOT}'"
         exit 1
+    fi
+
+    BUILD_DIR="${REPO_ROOT}/build"
+    INSTALL_DIR="${REPO_ROOT}/install"
+
+    if [[ ! -d "${BUILD_DIR}" ]]; then
+        do-cmake "${REPO_ROOT}"
     fi
 
     ninja -C "${BUILD_DIR}" check-cxx check-cxxabi check-unwind check-clang check-compiler-rt
