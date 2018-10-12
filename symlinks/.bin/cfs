@@ -10,6 +10,7 @@ ${PROGNAME} clone --release <RELEASE> <REPO>
 ${PROGNAME} cmake <REPO>
 ${PROGNAME} update <REPO>
 ${PROGNAME} install <REPO>
+${PROGNAME} clean <REPO>
 ${PROGNAME} test <REPO>
 EOF
 }
@@ -23,7 +24,7 @@ function main() {
     done
 
     case ${1} in
-        clone|cmake|update|install|test)
+        clone|cmake|update|install|clean|test)
             action="${1}"
             shift
             ;;
@@ -152,6 +153,19 @@ function do-install() {
     ninja -C "${BUILD_DIR}"
     rm -rf "${INSTALL_DIR}"
     ninja -C "${BUILD_DIR}" install
+}
+
+function do-clean() {
+    REPO_ROOT="$(realpath "${1}")"
+    shift
+
+    if [[ ! -d "${REPO_ROOT}" ]]; then
+        echo "Invalid repository '${REPO_ROOT}'"
+        exit 1
+    fi
+
+    BUILD_DIR="${REPO_ROOT}/build"
+    rm -rf "${BUILD_DIR}"
 }
 
 function do-test() {
