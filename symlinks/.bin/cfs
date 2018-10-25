@@ -39,11 +39,17 @@ function main() {
 }
 
 CANONICAL_LLVM_REPO="${HOME}/.canonical_llvm_repo"
+CANONICAL_LLVM_MIRROR="https://github.com/llvm-project/llvm-project-20170507"
 function _update_canonical_repo() {
     if [[ ! -d "${CANONICAL_LLVM_REPO}" ]]; then
         echo "Setting up canonical repository for LLVM sources at '${CANONICAL_LLVM_REPO}' (one-time only)"
-        git clone --mirror https://github.com/llvm-project/llvm-project-20170507 "${CANONICAL_LLVM_REPO}"
+        git clone --mirror "${CANONICAL_LLVM_MIRROR}" "${CANONICAL_LLVM_REPO}"
     else
+        mirror="$(git -C "${CANONICAL_LLVM_REPO}" remote get-url origin)"
+        if [[ "${mirror}" != "${CANONICAL_LLVM_MIRROR}" ]]; then
+            echo "The canonical LLVM repository appears to have a different remote URL (${mirror}) than the one we expected (${CANONICAL_LLVM_MIRROR}). You probably need to nuke the repository and clone again from the new mirror."
+            exit 1
+        fi
         echo "Updating canonical LLVM repository with the latest sources"
         git -C "${CANONICAL_LLVM_REPO}" fetch --all
     fi
