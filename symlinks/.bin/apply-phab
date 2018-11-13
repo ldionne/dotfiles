@@ -40,8 +40,8 @@ fi
 if [ -z ${directory+x} ]; then
     directory_string=""
 else
-    directory_string="--directory ${directory}"
+    directory_string="-p0 --directory ${directory}"
 fi
 
 raw_diff="https://reviews.llvm.org/${review}?download=true"
-wget --quiet -O - "${raw_diff}" | git am ${directory_string}
+wget --quiet -O - "${raw_diff}" | git apply ${directory_string}
