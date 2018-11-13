@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+set -e
+
+PROGNAME="$(basename "${0}")"
+function usage() {
+cat <<EOF
+Usage:
+${PROGNAME} [-h|--help] [--directory <DIR>] <LLVM-REVIEW>
+EOF
+}
+
+for arg in $@; do
+    if [[ "${arg}" == "-h" || "${arg}" == "--help" ]]; then
+        usage
+        exit 0
+    fi
+done
+
+while [[ $# -gt 0 ]]; do
+    case ${1} in
+        --directory)
+            directory="${2}"
+            shift
+            shift
+            ;;
+        *)
+            review="${1}"
+            shift
+            ;;
+    esac
+done
+
+if [ -z ${review+x} ]; then
+    echo "${PROGNAME} needs a review number"
+    usage
+    exit 1
+fi
+
+if [ -z ${directory+x} ]; then
+    directory_string=""
+else
+    directory_string="--directory ${directory}"
+fi
+
+raw_diff="https://reviews.llvm.org/${review}?download=true"
+wget --quiet -O - "${raw_diff}" | git am ${directory_string}
