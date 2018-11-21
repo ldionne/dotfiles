@@ -32,6 +32,11 @@ if command -v gls &>/dev/null; then
     alias la='gls -AF --color'
 fi
 
+# use colordiff instead of diff if installed
+if command -v colordiff &>/dev/null; then
+    alias diff='colordiff'
+fi
+
 ################################################################################
 # Environment variables
 ################################################################################
