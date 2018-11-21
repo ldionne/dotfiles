@@ -143,3 +143,12 @@ function brew-path() {
     formula=${1}
     brew info "${formula}" | grep Cellar | cut -d ' ' -f 1
 }
+
+# Function to easily download a Clang for MacOS from the LLVM releases page
+function download-mac-clang() {
+    version="${1}"
+    directory="${2}"
+    mkdir -p "${directory}"
+    URL="http://releases.llvm.org/${version}/clang+llvm-${version}-x86_64-apple-darwin.tar.xz"
+    wget "${URL}" --quiet -O - | tar -xj --strip-components=1 -C "${directory}"
+}
