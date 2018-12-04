@@ -35,6 +35,9 @@ if [ -z ${review+x} ]; then
     echo "${PROGNAME} needs a review number"
     usage
     exit 1
+elif [[ ! ${review} =~ ^(D|d)[0-9]+$ ]]; then
+    echo "Invalid review number format: '${review}'"
+    exit 1
 fi
 
 if [ -z ${directory+x} ]; then
