@@ -1,0 +1,4 @@
+{
+    // Otherwise we get Git index lock errors when rebasing.
+    "git_status_bar": false,
+}
