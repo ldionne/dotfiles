@@ -47,4 +47,4 @@ else
 fi
 
 raw_diff="https://reviews.llvm.org/${review}?download=true"
-wget --quiet -O - "${raw_diff}" | git apply ${directory_string}
+wget --quiet -O - "${raw_diff}" | git apply --reject ${directory_string}
