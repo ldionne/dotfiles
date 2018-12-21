@@ -122,6 +122,12 @@ function llvm-svn-rev() {
     echo "r${svn}"
 }
 
+# Get the Git commit associated to a SVN revision in the LLVM monorepo
+function llvm-git-sha() {
+    rev="${1#r}" # Trim leading 'r' if any
+    git log --show-notes --grep "git-svn-rev: ${rev}" --format='%H'
+}
+
 # Detects the sysroot of a Clang compiler and echoes it.
 function detect-clang-sysroot() {
     cxx=${1}
