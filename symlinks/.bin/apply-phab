@@ -6,7 +6,19 @@ PROGNAME="$(basename "${0}")"
 function usage() {
 cat <<EOF
 Usage:
-${PROGNAME} [-h|--help] [--directory <DIR>] <LLVM-REVIEW>
+${PROGNAME} [-h|--help] [--directory <DIR>] [--review <LLVM-REVIEW>] [--url <URL>]
+
+--review        When used, the diff being applied is the one associated to that
+                Phabricator review.
+
+--diff-url      When used, this exact URL is used to fetch the diff instead of
+                inferring it from the review number. This can be used for example
+                when a separate diff was uploaded on Phabricator and a review
+                was created from it: in that case, trying to infer the diff from
+                the review number will fail.
+
+--directory     Use that directory as the root when applying the patch. In other
+                words, all file paths in the diff are relative to that directory.
 EOF
 }
 
@@ -24,21 +36,18 @@ while [[ $# -gt 0 ]]; do
             shift
             shift
             ;;
-        *)
-            review="${1}"
+        --diff-url)
+            url="${2}"
+            shift
+            shift
+            ;;
+        --review)
+            url="https://reviews.llvm.org/${2}?download=true"
+            shift
             shift
             ;;
     esac
 done
-
-if [ -z ${review+x} ]; then
-    echo "${PROGNAME} needs a review number"
-    usage
-    exit 1
-elif [[ ! ${review} =~ ^(D|d)[0-9]+$ ]]; then
-    echo "Invalid review number format: '${review}'"
-    exit 1
-fi
 
 if [ -z ${directory+x} ]; then
     directory_string=""
@@ -46,5 +55,4 @@ else
     directory_string="-p0 --directory ${directory}"
 fi
 
-raw_diff="https://reviews.llvm.org/${review}?download=true"
-wget --quiet -O - "${raw_diff}" | git apply --reject ${directory_string}
+wget --quiet -O - "${url}" | git apply --reject ${directory_string}
