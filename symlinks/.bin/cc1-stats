@@ -1,18 +1,26 @@
 #!/usr/bin/env bash
 
-cat - | grep -e '-cc1' |
-        grep -E -e '-std(=|\s+).*' |
-        sed -E -e 's/.*-std(=|\s+)([^ "]*).*/\2/' |
-        awk '{xs[$1]++} END {for (f in xs) { printf "%s %s\n", xs[f], f }}' |
-        sort -n -r |
-        awk '
-        {xs[$2] = $1; total+=$1}
-        END {
-        for (x in xs) {
-            n=xs[x];
-            if (n > 2) {
-                printf "%4.1f%% %s\n", n/total*100, x
-            }
+function extract-stds() {
+    grep -e '-cc1' | # keep only actual cc1 invocations (there's some noise in the files)
+    sed -E -e 's/.*-(std=[^ "]*).*/\1/' | # sanitize all lines that contain -std=XXX
+    sed -E -e '/std=[^ "]*/!s/.*/std=default/' | # lines that don't contain -std=XXX are replaced by 'std=default'
+    sed -E -e 's/std=//' # Remove the useless 'std=' part
+}
+
+function histogram() {
+    awk '{vals[$1]++} END {for (val in vals) { printf "%s %s\n", vals[val], val }}' |
+    sort -n -r |
+    awk '
+    {vals[$2] = $1; total+=$1}
+    END {
+    for (val in vals) {
+        n=vals[val];
+        if (n > 1) { # We ignore lone occurences because they are often just noise in the file
+            printf "%s %4.1f%% (%d)\n", val, n/total*100, n
         }
-        }' |
-        sort -n -r -k 2
+    }
+    }' |
+    sort -n -r -k 2
+}
+
+extract-stds | histogram
