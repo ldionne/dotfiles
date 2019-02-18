@@ -162,7 +162,7 @@ function do-install() {
     fi
 
     rm -rf "${INSTALL_DIR}"
-    ninja -C "${BUILD_DIR}" install-{clang,cxx,cxxabi,unwind,tsan,asan,lsan,ubsan,clang-format,clang-tidy,clang-headers}
+    ninja -C "${BUILD_DIR}" install-{clang,cxx,cxxabi,unwind,tsan,asan,lsan,ubsan,clang-format,clang-headers}
 }
 
 function do-clean() {
