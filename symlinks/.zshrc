@@ -161,3 +161,18 @@ function download-mac-clang() {
     URL="http://releases.llvm.org/${version}/clang+llvm-${version}-x86_64-apple-darwin.tar.xz"
     wget "${URL}" --quiet -O - | tar -xj --strip-components=1 -C "${directory}"
 }
+
+# Function to easily get the diff of the symbols exported by a shared library.
+function diff-symbols() {
+    if [[ $# -lt 2 || $# -gt 3 ]]; then
+        echo "Invalid usage. Usage: ${0} <dylib1> <dylib2> [arch]"
+        return 1
+    fi
+    dylib1="${1}"
+    dylib2="${2}"
+    archs=${3:-$(lipo -archs "${dylib1}")}
+    for arch in $(echo ${archs}); do
+        echo "Diff from ${dylib1} to ${dylib2} for architecture ${arch}"
+        diff <(nm -arch "${arch}" -mg "${dylib1}" | cut -d ' ' -f 2-) <(nm -arch "${arch}" -mg "${dylib2}" | cut -d ' ' -f 2-)
+    done
+}
