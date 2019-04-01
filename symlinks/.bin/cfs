@@ -70,22 +70,16 @@ function do-clone() {
     esac
     done
 
-    case ${release} in
-        4.x)   sha=RELEASE_401/final ;;
-        4.0.0) sha=RELEASE_400/final ;;
-        4.0.1) sha=RELEASE_401/final ;;
-        5.x)   sha=RELEASE_501/final ;;
-        5.0.0) sha=RELEASE_500/final ;;
-        5.0.1) sha=RELEASE_501/final ;;
-        7.x)   sha=RELEASE_701/final ;;
-        7.0.0) sha=RELEASE_700/final ;;
-        7.0.1) sha=RELEASE_701/final ;;
-        trunk) sha=master ;;
-        *)
-            echo "Unknown release '${release}'"
-            exit 1
-            ;;
-    esac
+    if [[ "${release}" == "trunk" ]]; then
+        branch=master
+    else
+        branch="$(git -C "${CANONICAL_LLVM_REPO}" branch | grep "release/${release}" | tr -d ' ' || true)"
+    fi
+
+    if [[ "${branch}" == "" ]]; then
+        echo "Unknown release '${release}'"
+        exit 1
+    fi
 
     if [[ -e "${REPO_ROOT}" ]]; then
         "Repository '${REPO_ROOT}' already exists: not overwriting it"
@@ -94,7 +88,7 @@ function do-clone() {
 
     _update_canonical_repo
     git clone --shared "${CANONICAL_LLVM_REPO}" "${REPO_ROOT}"
-    git -C "${REPO_ROOT}" checkout "${sha}"
+    git -C "${REPO_ROOT}" checkout "${branch}"
 }
 
 function do-cmake() {
