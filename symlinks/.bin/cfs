@@ -39,7 +39,7 @@ function main() {
 }
 
 CANONICAL_LLVM_REPO="${HOME}/.canonical_llvm_repo"
-CANONICAL_LLVM_MIRROR="https://github.com/llvm-project/llvm-project-20170507"
+CANONICAL_LLVM_MIRROR="https://github.com/llvm/llvm-project"
 function _update_canonical_repo() {
     if [[ ! -d "${CANONICAL_LLVM_REPO}" ]]; then
         echo "Setting up canonical repository for LLVM sources at '${CANONICAL_LLVM_REPO}' (one-time only)"
@@ -71,27 +71,15 @@ function do-clone() {
     done
 
     case ${release} in
-        3.0.x) sha=release_30 ;;
-        3.1.x) sha=release_31 ;;
-        3.2.x) sha=release_32 ;;
-        3.3.x) sha=release_33 ;;
-        3.4.x) sha=release_34 ;;
-        3.5.x) sha=release_35 ;;
-        3.6.x) sha=release_36 ;;
-        3.7.x) sha=release_37 ;;
-        3.8.x) sha=release_38 ;;
-        3.9.x) sha=release_39 ;;
-        4.x)   sha=release_40 ;;
+        4.x)   sha=RELEASE_401/final ;;
         4.0.0) sha=RELEASE_400/final ;;
         4.0.1) sha=RELEASE_401/final ;;
-        5.x)   sha=release_50 ;;
+        5.x)   sha=RELEASE_501/final ;;
         5.0.0) sha=RELEASE_500/final ;;
         5.0.1) sha=RELEASE_501/final ;;
-        6.x)   sha=release_60 ;;
-        6.0.0) sha=release_600 ;;
-        6.0.1) sha=release_601 ;;
-        7.x)   sha=release_70 ;;
+        7.x)   sha=RELEASE_701/final ;;
         7.0.0) sha=RELEASE_700/final ;;
+        7.0.1) sha=RELEASE_701/final ;;
         trunk) sha=master ;;
         *)
             echo "Unknown release '${release}'"
