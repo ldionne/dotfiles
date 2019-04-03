@@ -176,3 +176,12 @@ function diff-symbols() {
         diff <(nm -arch "${arch}" -mg "${dylib1}" | cut -d ' ' -f 2-) <(nm -arch "${arch}" -mg "${dylib2}" | cut -d ' ' -f 2-)
     done
 }
+
+# Run clang-format on the files that were changed by the last git commit.
+function clang-format-changed() {
+    for file in $(git diff --name-only HEAD~); do
+        file="${PWD}/${file}"
+        dir="$(dirname "${file}")"
+        (cd "${dir}" && clang-format -i "${file}")
+    done
+}
