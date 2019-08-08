@@ -24,5 +24,9 @@ if [[ "${1}" == "--setup-linux" ]]; then
     bash
 else
     docker pull ericwf/libcxx-buildbot-base
-    docker run --interactive --tty --rm --volume "${HOME}/work/llvm":/llvm --workdir /llvm ericwf/libcxx-buildbot-base "${0}" --setup-linux
+    docker run --interactive --tty --rm \
+               --volume "${HOME}/work/llvm":/llvm \
+               --volume "$(dirname "${0}")":/tmp/.bin \
+               --workdir /llvm ericwf/libcxx-buildbot-base \
+               "/tmp/.bin/$(basename "${0}")" --setup-linux
 fi
