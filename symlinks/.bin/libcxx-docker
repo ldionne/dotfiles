@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+#
+# Running this script will start a Docker container with a recent-ish Clang
+# and a recent CMake that can be used to emulate the environment used by
+# libc++'s Linux builders.
+#
+
+set -e
+
+if [[ "${1}" == "--setup-linux" ]]; then
+    apt-get update
+    yes | apt-get install ssh vim clang-9
+
+    # Install a recent CMake
+    yes | apt-get purge cmake
+    wget https://github.com/Kitware/CMake/releases/download/v3.15.2/cmake-3.15.2-Linux-x86_64.sh -O /tmp/install-cmake.sh
+    bash /tmp/install-cmake.sh --prefix=/usr --exclude-subdir --skip-license
+    cmake --version
+
+    git config --global user.email "ldionne@apple.com"
+    git config --global user.name "Louis Dionne"
+
+    bash
+else
+    docker pull ericwf/libcxx-buildbot-base
+    docker run --interactive --tty --rm --volume "${HOME}/work/llvm":/llvm --workdir /llvm ericwf/libcxx-buildbot-base "${0}" --setup-linux
+fi
