@@ -10,7 +10,7 @@ set -e
 
 if [[ "${1}" == "--setup-linux" ]]; then
     apt-get update
-    yes | apt-get install ssh vim clang-9
+    yes | apt-get install ssh vim clang-9 less
 
     # Install a recent CMake
     yes | apt-get purge cmake
