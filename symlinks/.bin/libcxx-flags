@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+
+set -e
+
+PROGNAME="$(basename "${0}")"
+function usage() {
+cat <<EOF
+Usage:
+${PROGNAME} [--compile|--link] --arch <ARCH>
+
+This script parses the output of a libc++ build and extract the salient compile
+or link flags for the given architecture. The flags are output one-per-line,
+which allows diffing the flags used to build libc++ in different configurations.
+EOF
+}
+
+function main() {
+    for arg in $@; do
+        if [[ "${arg}" == "-h" || "${arg}" == "--help" ]]; then
+            usage
+            exit 0
+        fi
+    done
+
+    while [[ $# -gt 0 ]]; do
+        case ${1} in
+            --arch)
+                arch="${2}"
+                shift; shift
+                ;;
+            --link)
+                action="link"
+                shift
+                ;;
+            --compile)
+                action="compile"
+                shift
+                ;;
+            *)
+                echo "Invalid argument '${1}'"
+                usage
+                exit 1
+                ;;
+        esac
+    done
+
+    if [ -z ${arch+x} ]; then
+        echo "--arch is required"
+        usage
+        exit 1
+    fi
+
+    ${action}-sample "${arch}"
+}
+
+# Given a compiler command line, echoes only the flags we care about.
+function salient-compile-flags() {
+    sed 's/-MD//' |
+    sed -E 's/-MT [^[:space:]]+//' | # Remove -MT flag
+    sed -E 's/-MF [^[:space:]]+//' | # Remove -MF flag
+    sed -E 's/-MMD//' | # Remove -MMD flag
+    sed -E 's/-W[^l][^[:space:]]+//g' |  # Remove warning flags (make sure we don't remove -Wl,)
+    sed -E 's/-o [^[:space:]]+//' | # Remove output file
+    sed -E 's/-c [^[:space:]]+//' | # Remove input file
+    sed -E 's/-(I|isystem|iquote|F|iframework)[[:space:]]*[^[:space:]]+//g' | # Remove all header and framework paths
+    sed -E 's/-nostdinc\+\+//' | # -nostdinc++
+    sed -E 's/-fmacro-backtrace-limit=[0-9]+//' |
+    sed -E 's/-fmessage-length=[0-9]+//' |
+    sed -E 's/-fdiagnostics-show-note-include-stack//' |
+    sed -E 's/-fpascal-strings//' |
+    sed -E 's/-fasm-blocks//' |
+    sed -E 's/-fstrict-aliasing//' | # -fstrict-aliasing is now the default anyway so we don't care about it (we never pass -fno-strict-aliasing)
+    sed -E 's/--serialize-diagnostics [^[:space:]]+//' |
+    sed -E 's/-x[[:space:]]*c\+\+//' # remove -xc++ since we're obviously compiling C++
+}
+
+# Given a linker command line, echoes only the flags we care about.
+function salient-link-flags() {
+    sed -E 's/-Wl,-(reexported_symbols_list|unexported_symbols_list|force_symbols_weak_list|force_symbols_not_weak_list|dirty_data_list),([^[:space:]"]+)/-Wl,-\1,"\2"/g' | # quote paths to list files
+    sed -E 's/-(L|F|iframework)[[:space:]]*[^[:space:]]+//g' | # Remove -L, -F and -iframework paths
+    sed -E 's/-Xlinker -final_output -Xlinker [^[:space:]]+//' | # Remove -final_output flag
+    sed -E 's/-Xlinker -object_path_lto -Xlinker [^[:space:]]+//' | # Remove -object_path_lto flag
+    sed -E 's/-Xlinker -dependency_info -Xlinker [^[:space:]]+//' | # Remove -dependency_info flag
+    sed -E 's/-filelist[[:space:]]*[^[:space:]]+//g' | # Remove input file list if any
+    sed -E 's/-o [^[:space:]]+//' | # Remove output file
+    sed -E 's/-Wl,-headerpad_max_install_names//' |
+    sed -E 's/-D[^[:space:]]+//' | # Remove #defines on the command-line, which are useless when linking
+    sed -E 's/[^[:space:]]+\.o//g' | # Remove any remaining input object files
+    sed -E 's/-nodefaultlibs//' |
+    sed -E 's/-dynamiclib//'
+}
+
+# Given a log file containing Ninja-generated steps, returns all the lines that pertain to compiling an object file.
+function compile-commands() {
+    grep -e '\.o' | grep -e '-c' | grep -v -e 'dylib'
+}
+
+# Given a log file containing Ninja-generated steps, returns all the lines that pertain to linking a dylib.
+function link-commands() {
+    grep -e '-dynamiclib'
+}
+
+# Standardize whitespace and other flags, and remove Ninja-related clutter from the command-line.
+function prettify() {
+    sed -E 's$\[[0-9]+/[0-9]+\]$$' | # Remove the Ninja progress marker
+    sed -E 's/(:|&&)//g' | # Remove stray : and && left by Ninja output
+    sed -E 's/[[:space:]]+/ /g' | # Remove duplicate spaces in the middle
+    sed -E 's/^[[:space:]]*//' | # Remove duplicate spaces at the beginning
+    sed -E 's/[[:space:]]*$//' | # Remove duplicate spaces at the end
+    sed -E s'/-Xlinker (-[^[:space:]]+) -Xlinker ([^[:space:]]+)/-Wl,\1,\2/g' | # Substitute arguments passed using -Xlinker by -Wl arguments
+    sed -E 's:/[^[:space:]"]+\.roots/Sources/[^/]+:<srcroot>:g' | # Substitute long paths to the SRCROOT
+    sed -E "s:$(xcode-select -p):<Xcode>:g" | # Substitute long paths to toolchain
+    sed -E 's/-(target|arch|L|I|isystem|isysroot|current_version|install_name|compatibility_version|objc_abi_version)[[:space:]]+/-\1=/g' | # Avoid whitespace in flags
+    sed -E 's$bin/(clang|clang\+\+)[[:space:]]$bin/c++ $' | # Substitute calls to 'clang' and 'clang++' by calls to 'c++' for uniformity
+    sed -E "s/-compatibility_version=1[[:space:]]/-compatibility_version=1.0.0 /" | # -compatibility_version=1 and 1.0.0 are really the same -- reduce the diff
+    sed -E "s/-miphoneos-version-min=/-mios-version-min=/" # Both have the same meaning, this shouldn't pollute the diff
+}
+
+function compile-sample() {
+    arch="${1}"
+    compile-commands | salient-compile-flags | prettify | grep -E "(-arch=${arch}[[:space:]]|-target=${arch}-)" | head -1 | tr ' ' '\n' | sort
+}
+
+function link-sample() {
+    arch="${1}"
+    link-commands | salient-link-flags | prettify | grep -E "(-arch=${arch}[[:space:]]|-target=${arch}-)" | head -1 | tr ' ' '\n' | sort
+}
+
+main $@
