@@ -103,17 +103,10 @@ function download-paper() {
     wget "${url}"
 }
 
-# Utilities to work with LLVM lit
+# Find the root of a Git repository
 function git-repo-root() {
     git rev-parse --show-toplevel
 }
-
-function find-llvm-lit() {
-    root="${1}"
-    realpath "$(find "${root}" -type f -perm +111 -name llvm-lit -print)"
-}
-
-alias lit='$(find-llvm-lit $(git-repo-root))'
 
 # Get the SVN revision from a git commit in the LLVM monorepo
 function llvm-svn-rev() {
