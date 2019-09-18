@@ -3,7 +3,7 @@
 ################################################################################
 alias maek='make'
 
-# More git aliases
+# Git aliases
 alias g='git'
 alias ga='git add'
 alias gb='git branch'
@@ -38,9 +38,11 @@ fi
 ################################################################################
 # Environment variables
 ################################################################################
-export EDITOR='subl -w'
-PROMPT='%n in %~ %# '
 export PATH="${HOME}/.bin:${PATH}"
+if which subl &>/dev/null; then
+    export EDITOR='subl -w'
+fi
+PROMPT='%n in %~ %# '
 export HISTSIZE=15000 # Maximum number of history lines kept per session
 export SAVEHIST=100000 # Maximum number of history lines kept across all sessions
 export HISTFILE=${HOME}/.zsh_history # File where history is kept
@@ -54,7 +56,9 @@ if [[ -f "${HOME}/.travis/travis.sh" ]]; then
 fi
 
 # rbenv
-command -v rbenv &>/dev/null && eval "$(rbenv init -)"
+if command -v rbenv &>/dev/null; then
+    eval "$(rbenv init -)"
+fi
 
 # iTerm2
 if [[ -f "${HOME}/.iterm2_shell_integration.zsh" ]]; then
@@ -85,7 +89,9 @@ export PATH="${HOME}/.bin.private:${PATH}"
 export PATH="${PATH}:${HOME}/Library/Python/2.7/bin"
 
 # Set a title for the current tab
-function title { echo -ne "\033]0;"$*"\007" }
+function title {
+    echo -ne "\033]0;"$*"\007"
+}
 
 # Restart all failed Travis jobs of a numbered build
 function travis_restart_failed() {
