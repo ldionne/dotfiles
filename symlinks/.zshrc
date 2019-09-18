@@ -3,9 +3,6 @@
 ################################################################################
 alias maek='make'
 
-# Alias `git` to `hub` if it exists.
-commands -v hub &>/dev/null && alias git='hub'
-
 # More git aliases
 alias g='git'
 alias ga='git add'
