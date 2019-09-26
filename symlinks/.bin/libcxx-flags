@@ -83,7 +83,6 @@ function salient-link-flags() {
     sed -E 's/-Xlinker -dependency_info -Xlinker [^[:space:]]+//' | # Remove -dependency_info flag
     sed -E 's/-filelist[[:space:]]*[^[:space:]]+//g' | # Remove input file list if any
     sed -E 's/-o [^[:space:]]+//' | # Remove output file
-    sed -E 's/-Wl,-headerpad_max_install_names//' |
     sed -E 's/-D[^[:space:]]+//' | # Remove #defines on the command-line, which are useless when linking
     sed -E 's/[^[:space:]]+\.o//g' | # Remove any remaining input object files
     sed -E 's/-nodefaultlibs//' |
