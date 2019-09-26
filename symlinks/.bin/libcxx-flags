@@ -67,6 +67,7 @@ function salient-compile-flags() {
     sed -E 's/-fmacro-backtrace-limit=[0-9]+//' |
     sed -E 's/-fmessage-length=[0-9]+//' |
     sed -E 's/-fdiagnostics-show-note-include-stack//' |
+    sed -E 's/-fcolor-diagnostics//' |
     sed -E 's/-fpascal-strings//' |
     sed -E 's/-fasm-blocks//' |
     sed -E 's/-fstrict-aliasing//' | # -fstrict-aliasing is now the default anyway so we don't care about it (we never pass -fno-strict-aliasing)
