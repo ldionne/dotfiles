@@ -62,7 +62,7 @@ function salient-compile-flags() {
     sed -E 's/-W[^l][^[:space:]]+//g' |  # Remove warning flags (make sure we don't remove -Wl,)
     sed -E 's/-o [^[:space:]]+//' | # Remove output file
     sed -E 's/-c [^[:space:]]+//' | # Remove input file
-    sed -E 's/-(I|isystem|iquote|F|iframework)[[:space:]]*[^[:space:]]+//g' | # Remove all header and framework paths
+    sed -E 's/-(I|isystem|idirafter|iquote|F|iframework)[[:space:]]*[^[:space:]]+//g' | # Remove all header and framework paths
     sed -E 's/-nostdinc\+\+//' | # -nostdinc++
     sed -E 's/-fmacro-backtrace-limit=[0-9]+//' |
     sed -E 's/-fmessage-length=[0-9]+//' |
@@ -110,7 +110,7 @@ function prettify() {
     sed -E s'/-Xlinker (-[^[:space:]]+) -Xlinker ([^[:space:]]+)/-Wl,\1,\2/g' | # Substitute arguments passed using -Xlinker by -Wl arguments
     sed -E 's:/[^[:space:]"]+\.roots/Sources/[^/]+:<srcroot>:g' | # Substitute long paths to the SRCROOT
     sed -E "s:$(xcode-select -p):<Xcode>:g" | # Substitute long paths to toolchain
-    sed -E 's/-(target-variant|target|arch|L|I|isystem|isysroot|current_version|install_name|compatibility_version|objc_abi_version)[[:space:]]+/-\1=/g' | # Avoid whitespace in flags
+    sed -E 's/-(target-variant|target|arch|L|I|isystem|idirafter|isysroot|current_version|install_name|compatibility_version|objc_abi_version)[[:space:]]+/-\1=/g' | # Avoid whitespace in flags
     sed -E 's$bin/(clang|clang\+\+)[[:space:]]$bin/c++ $' | # Substitute calls to 'clang' and 'clang++' by calls to 'c++' for uniformity
     sed -E "s/-compatibility_version=1[[:space:]]/-compatibility_version=1.0.0 /" | # -compatibility_version=1 and 1.0.0 are really the same -- reduce the diff
     sed -E "s/-miphoneos-version-min=/-mios-version-min=/" # Both have the same meaning, this shouldn't pollute the diff
