@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+set -e
+
+PROGNAME="$(basename "${0}")"
+function usage() {
+cat <<EOF
+Usage:
+${PROGNAME} <DYLIB1> <DYLIB2> [arch] [-h|--help]
+
+Produce a diff of the symbols exported by two shared libraries.
+
+If no architecture is specified, the symbols for each architecture in the
+libraries are diffed.
+EOF
+}
+
+for arg in $@; do
+    if [[ "${arg}" == "-h" || "${arg}" == "--help" ]]; then
+        usage
+        exit 0
+    fi
+done
+
+if [[ $# -lt 2 ]]; then echo "Too few arguments." && usage && exit 1; fi
+if [[ $# -gt 3 ]]; then echo "Too many arguments." && usage && exit 1; fi
+
+# Trim leading whitespace of whatever is piped into it.
+function trim() {
+    awk '{$1=$1};1'
+}
+
+# Get the list of symbols exported by a shared library for the given architecture.
+function symbols() {
+    lib="${1}"
+    arch="${2}"
+    nm -arch "${arch}" -mg "${lib}" | cut -d ' ' -f 2- | trim
+}
+
+dylib1="${1}"
+dylib2="${2}"
+
+all_archs=$((echo -n "$(lipo -archs "${dylib1}")"; echo -n " $(lipo -archs "${dylib2}")") | tr ' ' '\n' | sort | uniq)
+archs=${3:-${all_archs}}
+
+for arch in $(echo ${archs}); do
+    echo "Diff from ${dylib1} to ${dylib2} for architecture ${arch}"
+    diff <(symbols "${dylib1}" "${arch}" | sort) <(symbols "${dylib2}" "${arch}" | sort)
+done
