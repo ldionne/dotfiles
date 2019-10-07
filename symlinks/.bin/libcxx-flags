@@ -64,6 +64,7 @@ function salient-compile-flags() {
     sed -E 's/-c [^[:space:]]+//' | # Remove input file
     sed -E 's/-(I|isystem|idirafter|iquote|F|iframework)[[:space:]]*[^[:space:]]+//g' | # Remove all header and framework paths
     sed -E 's/-nostdinc\+\+//' | # remove -nostdinc++
+    sed -E 's/-nostdinc//' | # remove -nostdinc
     sed -E 's/-pedantic//' | # remove -pedantic
     sed -E 's/-fmacro-backtrace-limit=[0-9]+//' |
     sed -E 's/-fmessage-length=[0-9]+//' |
