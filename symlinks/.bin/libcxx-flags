@@ -116,7 +116,8 @@ function prettify() {
     sed -E 's/-(target-variant|target|arch|L|I|isystem|idirafter|isysroot|current_version|install_name|compatibility_version|objc_abi_version)[[:space:]]+/-\1=/g' | # Avoid whitespace in flags
     sed -E 's$bin/(clang|clang\+\+)[[:space:]]$bin/c++ $' | # Substitute calls to 'clang' and 'clang++' by calls to 'c++' for uniformity
     sed -E "s/-compatibility_version=1[[:space:]]/-compatibility_version=1.0.0 /" | # -compatibility_version=1 and 1.0.0 are really the same -- reduce the diff
-    sed -E "s/-miphoneos-version-min=/-mios-version-min=/" # Both have the same meaning, this shouldn't pollute the diff
+    sed -E "s/-miphoneos-version-min=/-mios-version-min=/" | # Both have the same meaning, this shouldn't pollute the diff
+    sed -E "s/-DNDEBUG=1/-DNDEBUG/g" # It doesn't matter whether NDEBUG is defined to something or just defined at all -- reduce the diff
 }
 
 function compile-sample() {
