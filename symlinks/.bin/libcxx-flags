@@ -80,6 +80,7 @@ function salient-compile-flags() {
 function salient-link-flags() {
     sed -E 's/-Wl,-(reexported_symbols_list|unexported_symbols_list|force_symbols_weak_list|force_symbols_not_weak_list|dirty_data_list),([^[:space:]"]+)/-Wl,-\1,"\2"/g' | # quote paths to list files
     sed -E 's/-(L|F|iframework)[[:space:]]*[^[:space:]]+//g' | # Remove -L, -F and -iframework paths
+    sed -E 's/-O(0|1|2|3|4|s|fast|s|z|g)?[[:space:]]+//g' | # Remove any optimization option passed at link time
     sed -E 's/-Xlinker -final_output -Xlinker [^[:space:]]+//' | # Remove -final_output flag
     sed -E 's/-Xlinker -object_path_lto -Xlinker [^[:space:]]+//' | # Remove -object_path_lto flag
     sed -E 's/-Xlinker -dependency_info -Xlinker [^[:space:]]+//' | # Remove -dependency_info flag
