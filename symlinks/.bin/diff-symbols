@@ -4,12 +4,17 @@ PROGNAME="$(basename "${0}")"
 function usage() {
 cat <<EOF
 Usage:
-${PROGNAME} <DYLIB1> <DYLIB2> [--arch <ARCH>] [-h|--help]
+${PROGNAME} <LIB1> <LIB2> [--arch <ARCH>] [--static] [-h|--help]
 
-Produce a diff of the symbols exported by two shared libraries.
+Produce a diff of the exported symbols contained in two libraries.
 
 If no architecture is specified, the symbols for each architecture in the
 libraries are diffed.
+
+If --static is specified, the libraries are assumed to be static archives
+instead of shared libraries, and the output of 'nm' is filtered in a way
+that makes more sense for static archives (since symbols are displayed per
+object file).
 EOF
 }
 
@@ -20,8 +25,8 @@ for arg in $@; do
     fi
 done
 
-dylib1="${1}"
-dylib2="${2}"
+lib1="${1}"
+lib2="${2}"
 shift; shift
 
 while [[ $# -gt 0 ]]; do
@@ -29,6 +34,10 @@ while [[ $# -gt 0 ]]; do
         --arch)
             archs="${2}"
             shift; shift
+            ;;
+        --static)
+            static="true"
+            shift
             ;;
         *)
             echo "Invalid argument '${1}'"
@@ -39,7 +48,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ -z ${archs+x} ]; then
-    archs=$((echo -n "$(lipo -archs "${dylib1}")"; echo -n " $(lipo -archs "${dylib2}")") | tr ' ' '\n' | sort | uniq)
+    archs=$((echo -n "$(lipo -archs "${lib1}")"; echo -n " $(lipo -archs "${lib2}")") | tr ' ' '\n' | sort | uniq)
 fi
 
 # Trim leading whitespace of whatever is piped into it.
@@ -48,13 +57,26 @@ function trim() {
 }
 
 # Get the list of symbols exported by a shared library for the given architecture.
-function symbols() {
+function symbols-shared() {
     lib="${1}"
     arch="${2}"
-    nm -arch "${arch}" -mg "${lib}" | cut -d ' ' -f 2- | trim
+    nm -arch "${arch}" -mg "${lib}" 2>/dev/null | cut -d ' ' -f 2- | trim
+}
+
+# Get the list of exported symbols contained in a static library for the given
+# architecture. We remove the name of the static archive before each object
+# file, since that will obviously be different for each library.
+function symbols-static() {
+    lib="${1}"
+    arch="${2}"
+    nm -arch "${arch}" -omg "${lib}" 2>/dev/null | cut -d ' ' -f 1,3- | tr -s ' ' | cut -d ':' -f 2- | sort
+}
+
+function symbols() {
+    if [[ "${static}" == "true" ]]; then symbols-static ${@}; else symbols-shared ${@}; fi
 }
 
 for arch in $(echo ${archs}); do
-    echo "Diff from ${dylib1} to ${dylib2} for architecture ${arch}"
-    diff <(symbols "${dylib1}" "${arch}" | sort) <(symbols "${dylib2}" "${arch}" | sort)
+    echo "Diff from ${lib1} to ${lib2} for architecture ${arch}"
+    diff <(symbols "${lib1}" "${arch}" | sort) <(symbols "${lib2}" "${arch}" | sort)
 done
