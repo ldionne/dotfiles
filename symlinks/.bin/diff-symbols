@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 
-set -e
-
 PROGNAME="$(basename "${0}")"
 function usage() {
 cat <<EOF
 Usage:
-${PROGNAME} <DYLIB1> <DYLIB2> [arch] [-h|--help]
+${PROGNAME} <DYLIB1> <DYLIB2> [--arch <ARCH>] [-h|--help]
 
 Produce a diff of the symbols exported by two shared libraries.
 
@@ -22,8 +20,27 @@ for arg in $@; do
     fi
 done
 
-if [[ $# -lt 2 ]]; then echo "Too few arguments." && usage && exit 1; fi
-if [[ $# -gt 3 ]]; then echo "Too many arguments." && usage && exit 1; fi
+dylib1="${1}"
+dylib2="${2}"
+shift; shift
+
+while [[ $# -gt 0 ]]; do
+    case ${1} in
+        --arch)
+            archs="${2}"
+            shift; shift
+            ;;
+        *)
+            echo "Invalid argument '${1}'"
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+if [ -z ${archs+x} ]; then
+    archs=$((echo -n "$(lipo -archs "${dylib1}")"; echo -n " $(lipo -archs "${dylib2}")") | tr ' ' '\n' | sort | uniq)
+fi
 
 # Trim leading whitespace of whatever is piped into it.
 function trim() {
@@ -36,12 +53,6 @@ function symbols() {
     arch="${2}"
     nm -arch "${arch}" -mg "${lib}" | cut -d ' ' -f 2- | trim
 }
-
-dylib1="${1}"
-dylib2="${2}"
-
-all_archs=$((echo -n "$(lipo -archs "${dylib1}")"; echo -n " $(lipo -archs "${dylib2}")") | tr ' ' '\n' | sort | uniq)
-archs=${3:-${all_archs}}
 
 for arch in $(echo ${archs}); do
     echo "Diff from ${dylib1} to ${dylib2} for architecture ${arch}"
