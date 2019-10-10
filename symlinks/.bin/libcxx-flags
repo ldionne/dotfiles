@@ -6,11 +6,29 @@ PROGNAME="$(basename "${0}")"
 function usage() {
 cat <<EOF
 Usage:
-${PROGNAME} [--compile|--link] --arch <ARCH>
+${PROGNAME} [--compile|--link] --full --arch <ARCH>
 
 This script parses the output of a libc++ build and extract the salient compile
 or link flags for the given architecture. The flags are output one-per-line,
 which allows diffing the flags used to build libc++ in different configurations.
+
+The script is pretty basic -- it will only look at the first command-line
+matching the requested criteria (compilation/link and architecture), and
+use that command line to extract the flags. If different object files are
+built with different compiler flags, this script will basically only see
+the flags for the first object file appearing in the build log.
+
+Arguments:
+
+--compile           Sample compilation commands and extract compilation flags.
+--link              Sample link commands and extract linker flags.
+--arch              Only object files or shared libraries built for the given
+                    architecture will be sampled.
+--full              Instead of printing relevant flags one-per-line, print the
+                    full compilation or link command-line that would be used
+                    to extract flags from. This is meant mostly for debugging,
+                    in order to make sure the sampled command lines are those
+                    that we expect.
 EOF
 }
 
@@ -36,6 +54,10 @@ function main() {
                 action="compile"
                 shift
                 ;;
+            --full)
+                just_sample="true"
+                shift
+                ;;
             *)
                 echo "Invalid argument '${1}'"
                 usage
@@ -50,7 +72,13 @@ function main() {
         exit 1
     fi
 
-    ${action}-sample "${arch}"
+    if [ -z ${action+x} ]; then
+        echo "exactly one of --compile or --link is required"
+        usage
+        exit 1
+    fi
+
+    do-${action} "${arch}" "${just_sample}"
 }
 
 # Given a compiler command line, echoes only the flags we care about.
@@ -120,14 +148,31 @@ function prettify() {
     sed -E "s/-DNDEBUG=1/-DNDEBUG/g" # It doesn't matter whether NDEBUG is defined to something or just defined at all -- reduce the diff
 }
 
-function compile-sample() {
+# Right now, our sampling is very naive. We just take the first command line
+# that has the right architecture.
+function sample-arch() {
     arch="${1}"
-    compile-commands | salient-compile-flags | prettify | grep -E "(-arch=${arch}[[:space:]]|-target=${arch}-)" | head -1 | tr ' ' '\n' | sort
+    grep -E "(-arch(=|[[:space:]]+)${arch}[[:space:]]|-target(=|[[:space:]]+)${arch}-)" | head -1
 }
 
-function link-sample() {
+function do-compile() {
     arch="${1}"
-    link-commands | salient-link-flags | prettify | grep -E "(-arch=${arch}[[:space:]]|-target=${arch}-)" | head -1 | tr ' ' '\n' | sort
+    just_sample="${2}"
+    if [[ "${just_sample}" == "true" ]]; then
+        compile-commands | sample-arch "${arch}"
+    else
+        compile-commands | sample-arch "${arch}" | salient-compile-flags | prettify | tr ' ' '\n' | sort
+    fi
+}
+
+function do-link() {
+    arch="${1}"
+    just_sample="${2}"
+    if [[ "${just_sample}" == "true" ]]; then
+        link-commands | sample-arch "${arch}"
+    else
+        link-commands | sample-arch "${arch}" | salient-link-flags | prettify | tr ' ' '\n' | sort
+    fi
 }
 
 main $@
