@@ -85,8 +85,8 @@ if [[ -f "${HOME}/.zshrc.private" ]]; then
 fi
 export PATH="${HOME}/.bin.private:${PATH}"
 
-# Make sure Python packages installed with `pip install --user` can be found in the PATH
-export PATH="${PATH}:${HOME}/Library/Python/2.7/bin"
+# Make sure Python packages installed with `pip3 install --user` can be found in the PATH
+export PATH="${PATH}:${HOME}/Library/Python/3.7/bin"
 
 # Set a title for the current tab
 function title {
