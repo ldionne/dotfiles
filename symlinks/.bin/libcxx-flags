@@ -8,7 +8,7 @@ cat <<EOF
 Usage:
 ${PROGNAME} [--compile|--link] --full --arch <ARCH>
 
-This script parses the output of a libc++ build and extract the salient compile
+This script parses the output of a libc++ build and extracts the salient compile
 or link flags for the given architecture. The flags are output one-per-line,
 which allows diffing the flags used to build libc++ in different configurations.
 
