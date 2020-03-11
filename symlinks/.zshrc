@@ -166,3 +166,9 @@ function clang-format-changed() {
         (cd "${dir}" && clang-format -i "${file}")
     done
 }
+
+# Function to remove the boilerplate that `arc` adds to every commit.
+# Useful when committing to LLVM.
+function arcfilter () {
+    git log -1 --pretty=%B | awk '/Reviewers:|Subscribers:/{p=1} /Reviewed By:|Differential Revision:/{p=0} !p && !/^Summary:$/ {sub(/^Summary: /,"");print}' | git commit --amend -F -
+}
