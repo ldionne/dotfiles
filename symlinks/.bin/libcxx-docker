@@ -9,24 +9,26 @@
 set -e
 
 if [[ "${1}" == "--setup-linux" ]]; then
-    apt-get update
-    yes | apt-get install ssh vim clang-9 less abigail-tools
-
-    # Install a recent CMake
-    yes | apt-get purge cmake
-    wget https://github.com/Kitware/CMake/releases/download/v3.15.2/cmake-3.15.2-Linux-x86_64.sh -O /tmp/install-cmake.sh
-    bash /tmp/install-cmake.sh --prefix=/usr --exclude-subdir --skip-license
     cmake --version
+
+    echo && /opt/gcc-5/bin/g++ --version
+    echo && /opt/gcc-tot/bin/g++ --version
+    echo && /opt/llvm-9/bin/clang++ --version
+    echo && /opt/llvm-tot/bin/clang++ --version
 
     git config --global user.email "ldionne@apple.com"
     git config --global user.name "Louis Dionne"
 
     bash
 else
-    docker pull ericwf/libcxx-buildbot-base
+    docker build -t buildbot:latest \
+                 --build-arg gcc_tot="ericwf/gcc:9.2.0" \
+                 --build-arg llvm_tot="ericwf/llvm:9.x" \
+                 libcxx/utils/docker/debian9/buildbot
     docker run --interactive --tty --rm \
                --volume "${HOME}/work/llvm":/llvm \
                --volume "$(dirname "${0}")":/tmp/.bin \
-               --workdir /llvm ericwf/libcxx-buildbot-base \
+               --workdir /llvm \
+               buildbot:latest \
                "/tmp/.bin/$(basename "${0}")" --setup-linux
 fi
