@@ -111,19 +111,6 @@ function git-repo-root() {
     git rev-parse --show-toplevel
 }
 
-# Get the SVN revision from a git commit in the LLVM monorepo
-function llvm-svn-rev() {
-    commit="${1}"
-    svn="$(git show "${commit}" | grep git-svn-rev | cut -d ':' -f 2 | tr -d '[:space:]')"
-    echo "r${svn}"
-}
-
-# Get the Git commit associated to a SVN revision in the LLVM monorepo
-function llvm-git-sha() {
-    rev="${1#r}" # Trim leading 'r' if any
-    git log --grep "llvm-svn: ${rev}" --format='%H'
-}
-
 # Detects the sysroot of a Clang compiler and echoes it.
 function detect-clang-sysroot() {
     cxx=${1}
