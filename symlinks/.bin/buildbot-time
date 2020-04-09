@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+set -e
+
+PROGNAME="$(basename "${0}")"
+function usage() {
+cat <<EOF
+Usage:
+${PROGNAME} [-h|--help] <builder> <build-number>
+
+<builder>       The name of the BuildBot builder to query.
+<build-number>  The number of the build to examine on that build bot.
+EOF
+}
+
+for arg in $@; do
+    if [[ "${arg}" == "-h" || "${arg}" == "--help" ]]; then
+        usage
+        exit 0
+    fi
+done
+
+if [[ $# -lt 2 ]]; then
+    usage
+    exit 1
+fi
+
+builder="${1}"
+build="${2}"
+
+function convertsecs() {
+    ((h=${1}/3600))
+    ((m=(${1}%3600)/60))
+    ((s=${1}%60))
+    printf "%02d:%02d:%02d\n" $h $m $s
+}
+
+build_data="$(wget --quiet -O - http://lab.llvm.org:8011/json/builders/${builder}/builds/${build})"
+start="$(echo "${build_data}" | jq .times[0] | cut -d '.' -f 1)"
+end="$(echo "${build_data}" | jq .times[1] | cut -d '.' -f 1)"
+time=$((${end} - ${start}))
+echo "${build} started $(date -r "${start}") took $(convertsecs ${time})"
