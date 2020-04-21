@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+
+set -ex
+
+function git-repo-root() {
+    git rev-parse --show-toplevel
+}
+
+UMBRELLA_ROOT="$(git-repo-root)"
+LLVM_ROOT="${UMBRELLA_ROOT}/llvm"
+
+BUILDER="${1}"
+
+BUILD_DIR="${UMBRELLA_ROOT}/builders/build-${BUILDER}"
+INSTALL_DIR="${UMBRELLA_ROOT}/builders/install-${BUILDER}"
+
+function unsupported() {
+    echo "${BUILDER} is not supported yet"
+    exit 1
+}
+
+args=()
+
+case "${BUILDER}" in
+libcxx-libcxxabi-x86_64-linux-debian)
+    unsupported
+;;
+libcxx-libcxxabi-x86_64-linux-debian-noexceptions)
+    unsupported
+;;
+libcxx-libcxxabi-x86_64-linux-ubuntu-32bit)
+    unsupported
+;;
+libcxx-libcxxabi-x86_64-linux-ubuntu-cxx03)
+    export CC=clang
+    export CXX=clang++
+    args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
+    args+=("-DLIBCXX_CXX_ABI=libcxxabi")
+    args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported --param=std=c++03")
+;;
+libcxx-libcxxabi-x86_64-linux-ubuntu-cxx11)
+    export CC=clang
+    export CXX=clang++
+    args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
+    args+=("-DLIBCXX_CXX_ABI=libcxxabi")
+    args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported --param=std=c++11")
+;;
+libcxx-libcxxabi-x86_64-linux-ubuntu-cxx14)
+    export CC=clang
+    export CXX=clang++
+    args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
+    args+=("-DLIBCXX_CXX_ABI=libcxxabi")
+    args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported --param=std=c++14")
+;;
+libcxx-libcxxabi-x86_64-linux-ubuntu-cxx17)
+    export CC=clang
+    export CXX=clang++
+    args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
+    args+=("-DLIBCXX_CXX_ABI=libcxxabi")
+    args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported --param=std=c++17")
+;;
+libcxx-libcxxabi-x86_64-linux-ubuntu-cxx2a)
+    export CC=clang
+    export CXX=clang++
+    args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
+    args+=("-DLIBCXX_CXX_ABI=libcxxabi")
+    args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported --param=std=c++2a")
+;;
+libcxx-libcxxabi-x86_64-linux-ubuntu-gcc-tot-latest-std)
+    export CC=/opt/gcc-tot/bin/gcc
+    export CXX=/opt/gcc-tot/bin/g++
+    args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
+    args+=("-DLIBCXX_CXX_ABI=libcxxabi")
+    args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported")
+;;
+libcxx-libcxxabi-x86_64-linux-ubuntu-gcc5-cxx11)
+    export CC=/opt/gcc-5/bin/gcc
+    export CXX=/opt/gcc-5/bin/g++
+    args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
+    args+=("-DLIBCXX_CXX_ABI=libcxxabi")
+    args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported --param=std=c++11")
+;;
+libcxx-libcxxabi-x86_64-linux-ubuntu-asan)
+    unsupported
+;;
+libcxx-libcxxabi-x86_64-linux-ubuntu-msan)
+    unsupported
+;;
+libcxx-libcxxabi-x86_64-linux-ubuntu-tsan)
+    unsupported
+;;
+libcxx-libcxxabi-x86_64-linux-ubuntu-ubsan)
+    unsupported
+;;
+libcxx-libcxxabi-libunwind-aarch64-linux)
+    unsupported
+;;
+libcxx-libcxxabi-libunwind-aarch64-linux-noexceptions)
+    unsupported
+;;
+libcxx-libcxxabi-libunwind-armv7-linux)
+    unsupported
+;;
+libcxx-libcxxabi-libunwind-armv7-linux-noexceptions)
+    unsupported
+;;
+libcxx-libcxxabi-libunwind-armv8-linux)
+    unsupported
+;;
+libcxx-libcxxabi-libunwind-armv8-linux-noexceptions)
+    unsupported
+;;
+libcxx-libcxxabi-libunwind-x86_64-linux-debian)
+    export CC=clang
+    export CXX=clang++
+    args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
+    args+=("-DLIBCXX_CXX_ABI=libcxxabi")
+    args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported")
+    args+=("-DLIBCXXABI_USE_LLVM_UNWINDER=ON")
+;;
+libcxx-libcxxabi-libunwind-x86_64-linux-ubuntu)
+    unsupported
+;;
+libcxx-libcxxabi-singlethreaded-x86_64-linux-debian)
+    unsupported
+;;
+esac
+
+if [[ ! -e "${BUILD_DIR}" ]]; then
+    mkdir -p "${BUILD_DIR}"
+    (cd "${BUILD_DIR}" &&
+        cmake "${LLVM_ROOT}" -GNinja \
+                             -DCMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
+                             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+                             "${args[@]}")
+fi
+
+sudo -u buildbot ninja -C "${BUILD_DIR}" check-cxx check-cxxabi
