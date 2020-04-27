@@ -19,6 +19,8 @@ if [[ "${1}" == "--setup-linux" ]]; then
     git config --global user.email "ldionne@apple.com"
     git config --global user.name "Louis Dionne"
 
+    export PATH="${PATH}:/tmp/.bin"
+
     bash
 else
     docker build -t buildbot:latest \
