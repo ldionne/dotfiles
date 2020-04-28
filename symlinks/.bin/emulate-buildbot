@@ -21,63 +21,61 @@ function unsupported() {
 
 args=()
 
+args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
+args+=("-DLIBCXX_CXX_ABI=libcxxabi")
+
 case "${BUILDER}" in
 libcxx-libcxxabi-x86_64-linux-debian)
-    unsupported
+    export CC=clang
+    export CXX=clang++
+    args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported")
 ;;
 libcxx-libcxxabi-x86_64-linux-debian-noexceptions)
-    unsupported
+    export CC=clang
+    export CXX=clang++
+    args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported")
+    args+=("-DLIBCXX_ENABLE_EXCEPTIONS=OFF")
+    args+=("-DLIBCXXABI_ENABLE_EXCEPTIONS=OFF")
 ;;
 libcxx-libcxxabi-x86_64-linux-ubuntu-32bit)
-    unsupported
+    export CC=clang
+    export CXX=clang++
+    args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported")
+    args+=("-DLLVM_BUILD_32_BITS=ON")
 ;;
 libcxx-libcxxabi-x86_64-linux-ubuntu-cxx03)
     export CC=clang
     export CXX=clang++
-    args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
-    args+=("-DLIBCXX_CXX_ABI=libcxxabi")
     args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported --param=std=c++03")
 ;;
 libcxx-libcxxabi-x86_64-linux-ubuntu-cxx11)
     export CC=clang
     export CXX=clang++
-    args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
-    args+=("-DLIBCXX_CXX_ABI=libcxxabi")
     args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported --param=std=c++11")
 ;;
 libcxx-libcxxabi-x86_64-linux-ubuntu-cxx14)
     export CC=clang
     export CXX=clang++
-    args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
-    args+=("-DLIBCXX_CXX_ABI=libcxxabi")
     args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported --param=std=c++14")
 ;;
 libcxx-libcxxabi-x86_64-linux-ubuntu-cxx17)
     export CC=clang
     export CXX=clang++
-    args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
-    args+=("-DLIBCXX_CXX_ABI=libcxxabi")
     args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported --param=std=c++17")
 ;;
 libcxx-libcxxabi-x86_64-linux-ubuntu-cxx2a)
     export CC=clang
     export CXX=clang++
-    args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
-    args+=("-DLIBCXX_CXX_ABI=libcxxabi")
     args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported --param=std=c++2a")
 ;;
 libcxx-libcxxabi-x86_64-linux-ubuntu-gcc-tot-latest-std)
     export CC=/opt/gcc-tot/bin/gcc
     export CXX=/opt/gcc-tot/bin/g++
-    args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
-    args+=("-DLIBCXX_CXX_ABI=libcxxabi")
     args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported")
 ;;
 libcxx-libcxxabi-x86_64-linux-ubuntu-gcc5-cxx11)
     export CC=/opt/gcc-5/bin/gcc
     export CXX=/opt/gcc-5/bin/g++
-    args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
-    args+=("-DLIBCXX_CXX_ABI=libcxxabi")
     args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported --param=std=c++11")
 ;;
 libcxx-libcxxabi-x86_64-linux-ubuntu-asan)
@@ -113,8 +111,6 @@ libcxx-libcxxabi-libunwind-armv8-linux-noexceptions)
 libcxx-libcxxabi-libunwind-x86_64-linux-debian)
     export CC=clang
     export CXX=clang++
-    args+=("-DLLVM_ENABLE_PROJECTS=libcxx;libunwind;libcxxabi")
-    args+=("-DLIBCXX_CXX_ABI=libcxxabi")
     args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported")
     args+=("-DLIBCXXABI_USE_LLVM_UNWINDER=ON")
 ;;
@@ -122,6 +118,8 @@ libcxx-libcxxabi-libunwind-x86_64-linux-ubuntu)
     unsupported
 ;;
 libcxx-libcxxabi-singlethreaded-x86_64-linux-debian)
+    unsupported
+*)
     unsupported
 ;;
 esac
