@@ -119,6 +119,7 @@ libcxx-libcxxabi-libunwind-x86_64-linux-ubuntu)
 ;;
 libcxx-libcxxabi-singlethreaded-x86_64-linux-debian)
     unsupported
+;;
 *)
     unsupported
 ;;
