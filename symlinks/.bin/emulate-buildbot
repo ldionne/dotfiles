@@ -11,8 +11,8 @@ LLVM_ROOT="${UMBRELLA_ROOT}/llvm"
 
 BUILDER="${1}"
 
-BUILD_DIR="${UMBRELLA_ROOT}/builders/build-${BUILDER}"
-INSTALL_DIR="${UMBRELLA_ROOT}/builders/install-${BUILDER}"
+BUILD_DIR="${UMBRELLA_ROOT}/builders/${BUILDER}"
+INSTALL_DIR="${UMBRELLA_ROOT}/builders/${BUILDER}/install"
 
 function unsupported() {
     echo "${BUILDER} is not supported yet"
