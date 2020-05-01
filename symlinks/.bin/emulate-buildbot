@@ -79,16 +79,29 @@ libcxx-libcxxabi-x86_64-linux-ubuntu-gcc5-cxx11)
     args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported --param=std=c++11")
 ;;
 libcxx-libcxxabi-x86_64-linux-ubuntu-asan)
-    unsupported
+    export CC=clang
+    export CXX=clang++
+    args+=("-DLLVM_USE_SANITIZER=Address")
+    args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported")
 ;;
 libcxx-libcxxabi-x86_64-linux-ubuntu-msan)
-    unsupported
+    export CC=clang
+    export CXX=clang++
+    args+=("-DLLVM_USE_SANITIZER=MemoryWithOrigins")
+    args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported")
 ;;
 libcxx-libcxxabi-x86_64-linux-ubuntu-tsan)
-    unsupported
+    export CC=clang
+    export CXX=clang++
+    args+=("-DLLVM_USE_SANITIZER=Thread")
+    args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported")
 ;;
 libcxx-libcxxabi-x86_64-linux-ubuntu-ubsan)
-    unsupported
+    export CC=clang
+    export CXX=clang++
+    args+=("-DLLVM_USE_SANITIZER=Undefined")
+    args+=("-DLIBCXX_ABI_UNSTABLE=ON")
+    args+=("-DLLVM_LIT_ARGS=-sv --show-unsupported")
 ;;
 libcxx-libcxxabi-libunwind-aarch64-linux)
     unsupported
