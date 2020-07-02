@@ -40,7 +40,7 @@ fi
 ################################################################################
 export PATH="${HOME}/.bin:${PATH}"
 if which subl &>/dev/null; then
-    export EDITOR='subl -w'
+    export EDITOR="$(which subl) -w"
 fi
 PROMPT='%n in %~ %# '
 export HISTSIZE=15000 # Maximum number of history lines kept per session
