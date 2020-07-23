@@ -45,6 +45,11 @@ fi
 PROMPT='%n in %~ %# '
 export HISTSIZE=10000000 # Maximum number of history lines kept per session
 export SAVEHIST=10000000 # Maximum number of history lines kept across all sessions
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_FIND_NO_DUPS
+setopt HIST_SAVE_NO_DUPS
 export HISTFILE=${HOME}/.zsh_history # File where history is kept
 
 ################################################################################
