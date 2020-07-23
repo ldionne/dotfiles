@@ -43,8 +43,8 @@ if which subl &>/dev/null; then
     export EDITOR="$(which subl) -w"
 fi
 PROMPT='%n in %~ %# '
-export HISTSIZE=15000 # Maximum number of history lines kept per session
-export SAVEHIST=100000 # Maximum number of history lines kept across all sessions
+export HISTSIZE=10000000 # Maximum number of history lines kept per session
+export SAVEHIST=10000000 # Maximum number of history lines kept across all sessions
 export HISTFILE=${HOME}/.zsh_history # File where history is kept
 
 ################################################################################
