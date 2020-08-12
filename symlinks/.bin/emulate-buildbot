@@ -152,4 +152,4 @@ if [[ ! -e "${BUILD_DIR}" ]]; then
                              "${args[@]}")
 fi
 
-sudo -u buildbot ninja -C "${BUILD_DIR}" check-cxx check-cxxabi
+sudo -u buildbot ninja -C "${BUILD_DIR}" check-cxx check-cxxabi check-cxx-benchmarks
