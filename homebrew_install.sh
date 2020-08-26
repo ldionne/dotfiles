@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-brew install coreutils fzf wget zsh
+brew install coreutils fzf wget
