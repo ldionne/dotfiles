@@ -5,9 +5,22 @@ set -e
 PROGNAME="$(basename "${0}")"
 function usage() {
 cat <<EOF
+${PROGNAME} <command>
+
+    Various utilities to build Clang from source using a lightweight shallow
+    clone of LLVM, allowing multiple checkouts of LLVM without using too much
+    space.
+
 Usage:
-${PROGNAME} clone --release <RELEASE> <REPO>
+${PROGNAME} clone --at <COMMIT> <REPO>
+
+    Perform a shallow clone of the LLVM repository to the given directory
+    at the given commit/branch/tag.
+
 ${PROGNAME} cmake <REPO>
+
+    Perform the CMake setup for building Clang in the given repository.
+
 ${PROGNAME} update <REPO>
 ${PROGNAME} install <REPO>
 ${PROGNAME} clean <REPO>
@@ -47,7 +60,7 @@ function _update_canonical_repo() {
     else
         mirror="$(git -C "${CANONICAL_LLVM_REPO}" remote get-url origin)"
         if [[ "${mirror}" != "${CANONICAL_LLVM_MIRROR}" ]]; then
-            echo "The canonical LLVM repository appears to have a different remote URL (${mirror}) than the one we expected (${CANONICAL_LLVM_MIRROR}). You probably need to nuke the repository and clone again from the new mirror."
+            echo "The canonical LLVM repository appears to have a different remote URL (${mirror}) than the one we expected (${CANONICAL_LLVM_MIRROR}). You probably need to remove the repository and clone again from the new mirror."
             exit 1
         fi
         echo "Updating canonical LLVM repository with the latest sources"
@@ -58,8 +71,8 @@ function _update_canonical_repo() {
 function do-clone() {
     while [[ $# -gt 0 ]]; do
     case ${1} in
-        --release)
-            release="${2}"
+        --at)
+            commit="${2}"
             shift
             shift
             ;;
@@ -70,25 +83,14 @@ function do-clone() {
     esac
     done
 
-    if [[ "${release}" == "trunk" ]]; then
-        branch=master
-    else
-        branch="$(git -C "${CANONICAL_LLVM_REPO}" branch | grep "release/${release}" | tr -d ' ' || true)"
-    fi
-
-    if [[ "${branch}" == "" ]]; then
-        echo "Unknown release '${release}'"
-        exit 1
-    fi
-
     if [[ -e "${REPO_ROOT}" ]]; then
-        "Repository '${REPO_ROOT}' already exists: not overwriting it"
+        echo "Repository '${REPO_ROOT}' already exists: not overwriting it"
         exit 1
     fi
 
     _update_canonical_repo
     git clone --shared "${CANONICAL_LLVM_REPO}" "${REPO_ROOT}"
-    git -C "${REPO_ROOT}" checkout "${branch}"
+    git -C "${REPO_ROOT}" checkout "${commit}"
 }
 
 function do-cmake() {
