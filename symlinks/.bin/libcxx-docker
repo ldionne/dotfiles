@@ -13,7 +13,6 @@ if [[ "${1}" == "--setup-linux" ]]; then
 
     echo && /opt/gcc-5/bin/g++ --version
     echo && /opt/gcc-tot/bin/g++ --version
-    echo && /opt/llvm-9/bin/clang++ --version
     echo && /opt/llvm-tot/bin/clang++ --version
 
     git config --global user.email "ldionne@apple.com"
@@ -25,7 +24,7 @@ if [[ "${1}" == "--setup-linux" ]]; then
 else
     docker build -t buildbot:latest \
                  --build-arg gcc_tot="ericwf/gcc:9.2.0" \
-                 --build-arg llvm_tot="ericwf/llvm:9.x" \
+                 --build-arg llvm_tot="ericwf/llvm:trunk-2020-09-11" \
                  libcxx/utils/docker/debian9/buildbot
     docker run --interactive --tty --rm \
                --volume "${HOME}/work/llvm":/llvm \
