@@ -3,33 +3,11 @@
 #
 # Running this script will start a Docker container with a recent-ish Clang
 # and a recent CMake that can be used to emulate the environment used by
-# libc++'s Linux builders.
+# libc++'s Linux builders on BuildKite.
 #
 
 set -e
 
-if [[ "${1}" == "--setup-linux" ]]; then
-    cmake --version
-
-    echo && /opt/gcc-5/bin/g++ --version
-    echo && /opt/gcc-tot/bin/g++ --version
-    echo && /opt/llvm-tot/bin/clang++ --version
-
-    git config --global user.email "ldionne@apple.com"
-    git config --global user.name "Louis Dionne"
-
-    export PATH="${PATH}:/tmp/.bin"
-
-    bash
-else
-    docker build -t buildbot:latest \
-                 --build-arg gcc_tot="ericwf/gcc:9.2.0" \
-                 --build-arg llvm_tot="ericwf/llvm:11.x" \
-                 libcxx/utils/docker/debian9/buildbot
-    docker run --interactive --tty --rm \
-               --volume "${HOME}/work/llvm":/llvm \
-               --volume "$(dirname "${0}")":/tmp/.bin \
-               --workdir /llvm \
-               buildbot:latest \
-               "/tmp/.bin/$(basename "${0}")" --setup-linux
-fi
+MONOREPO_ROOT="$(git rev-parse --show-toplevel)"
+LIBCXX_IMAGE=$(docker build -q ${MONOREPO_ROOT}/libcxx/utils/ci)
+docker run -it --volume "${MONOREPO_ROOT}:/llvm" --workdir "/llvm" "${LIBCXX_IMAGE}" bash
