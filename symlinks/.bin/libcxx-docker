@@ -10,4 +10,4 @@ set -e
 
 MONOREPO_ROOT="$(git rev-parse --show-toplevel)"
 LIBCXX_IMAGE=$(docker build -q ${MONOREPO_ROOT}/libcxx/utils/ci)
-docker run -it --volume "${MONOREPO_ROOT}:/llvm" --workdir "/llvm" "${LIBCXX_IMAGE}" bash
+docker run -it --volume "${MONOREPO_ROOT}:/llvm" --workdir "/llvm" ${@} "${LIBCXX_IMAGE}" bash
