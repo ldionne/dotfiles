@@ -52,6 +52,11 @@ setopt HIST_FIND_NO_DUPS
 setopt HIST_SAVE_NO_DUPS
 export HISTFILE=${HOME}/.zsh_history # File where history is kept
 
+# If Python 3 was installed with Homebrew, make sure the unversionned aliases
+# pointing to Python 3 are found first in the path. By default, unversionned
+# `python` gets the System Python, which is 2.x.
+export PATH=/usr/local/opt/python/libexec/bin:$PATH
+
 ################################################################################
 # Initialize integrations
 ################################################################################
