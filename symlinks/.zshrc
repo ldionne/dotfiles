@@ -174,7 +174,9 @@ function arcfilter () {
 function libcxx-cherry-pick() {
     sha="${1}"
     releaseBranch="${2}"
-    git checkout -b "ldionne-zz-cherry-pick-${sha}" "${releaseBranch}"
+    git checkout "${releaseBranch}"
+    git pull
+    git checkout -b "ldionne-zz-cherry-pick-${sha}"
     git cherry-pick "${sha}"
     {
         echo -n "[🍒]" &&
