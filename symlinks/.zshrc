@@ -169,3 +169,16 @@ function clang-format-changed() {
 function arcfilter () {
     git log -1 --pretty=%B | awk '/Reviewers:|Subscribers:|Reviewed By:/{p=1} /Differential Revision:/{p=0} !p && !/^Summary:$/ {sub(/^Summary: /,"");print}' | git commit --amend -F -
 }
+
+# Function to cherry-pick commits from `main` onto a release branch of LLVM.
+function libcxx-cherry-pick() {
+    sha="${1}"
+    releaseBranch="${2}"
+    git checkout -b "ldionne-zz-cherry-pick-${sha}" "${releaseBranch}"
+    git cherry-pick "${sha}"
+    {
+        echo -n "[🍒]" &&
+        git log -1 --pretty=%B | awk '/Reviewers:|Subscribers:|Reviewed By:|Differential Revision:/{p=1} !p' &&
+        echo "(cherry-pick of commit ${sha})"
+    } | git commit --amend -F -
+}
