@@ -98,6 +98,9 @@ export PATH="${HOME}/.bin.private:${PATH}"
 # Make sure Python packages installed with `pip3 install --user` can be found in the PATH
 export PATH="${PATH}:${HOME}/Library/Python/3.7/bin"
 
+# Make sure we can find Arcanist if it's installed
+export PATH="${PATH}:${HOME}/code/arcanist/bin"
+
 # Set a title for the current tab
 function title {
     echo -ne "\033]0;"$*"\007"
