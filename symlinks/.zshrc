@@ -187,3 +187,14 @@ function libcxx-cherry-pick() {
         echo "(cherry-pick of commit ${sha})"
     } | git commit --amend -F -
 }
+
+# Function to apply a Differential revision made by a contributor that doesn't
+# have commit access to LLVM.
+libcxx-apply-contributor() {
+    rev="${1}"
+    author="${2}"
+
+    git checkout main
+    arc patch --revision "${rev}" --nobranch --force
+    git commit --amend --no-edit --author="${author}"
+}
