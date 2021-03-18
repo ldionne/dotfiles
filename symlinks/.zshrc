@@ -93,6 +93,10 @@ bindkey "^[[3~" delete-char
 if [[ -f "${HOME}/.zshrc.private" ]]; then
     source "${HOME}/.zshrc.private"
 fi
+# Load any secrets
+if [[ -f "${HOME}/.secrets" ]]; then
+    source "${HOME}/.secrets"
+fi
 export PATH="${HOME}/.bin.private:${PATH}"
 
 # Make sure Python packages installed with `pip3 install --user` can be found in the PATH
