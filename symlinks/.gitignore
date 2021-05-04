@@ -2,4 +2,3 @@
 .svn
 *.pyc
 __pycache__
-*.sublime-workspace

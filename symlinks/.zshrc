@@ -39,8 +39,8 @@ fi
 # Environment variables
 ################################################################################
 export PATH="${HOME}/.bin:${PATH}"
-if which subl &>/dev/null; then
-    export EDITOR="$(which subl) -w"
+if which code &>/dev/null; then
+    export EDITOR="$(which code) --wait"
 fi
 PROMPT='%n in %~ %# '
 export HISTSIZE=10000000 # Maximum number of history lines kept per session
