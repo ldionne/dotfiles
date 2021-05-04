@@ -203,3 +203,7 @@ libcxx-apply-contributor() {
     arc patch --revision "${rev}" --nobranch --force
     git commit --amend --no-edit --author="${author}"
 }
+
+function libcxx-changed-tests() {
+    git diff --name-only HEAD~ | grep 'libcxx/test'
+}
