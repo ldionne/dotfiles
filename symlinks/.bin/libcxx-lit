@@ -28,6 +28,7 @@ if [[ $# -lt 1 ]]; then
 fi
 
 build_dir="$(realpath "${1}")"
+shift
 
 cmake --build "${build_dir}" --target cxx-test-depends
 (cd libcxx/test && "${build_dir}/bin/llvm-lit" -sv ${@})
