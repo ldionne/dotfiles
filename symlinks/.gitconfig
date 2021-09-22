@@ -14,6 +14,7 @@
         submodule-rm = !git-submodule-rm
         addnw = !sh -c 'git diff -U0 -w --no-color "$@" | git apply --cached --ignore-whitespace --unidiff-zero -'
         files-changed = !git diff-tree --no-commit-id --name-only -r HEAD
+        shorten = !git rev-parse --short
 [color]
         diff = auto
         status = auto
