@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+set -x
+set -o pipefail
+
+PROGNAME="$(basename "${0}")"
+
+function usage() {
+cat <<EOF
+Usage:
+${PROGNAME} [options] <REPRODUCER-SCRIPT> [args...]
+
+Builds a Clang toolchain using the given LLVM repository and run the provided
+reproducer script with the CXX and CC environment variables set to the just
+built Clang. This is especially useful when trying to bisect issues that
+involve Clang and/or libc++.
+
+[-h|--help]         Display this help and exit.
+
+--llvm-root <DIR>   Path to the root of the LLVM monorepo. By default, we try
+                    to figure it out based on the current working directory.
+
+--build-dir <DIR>   The directory to use for building the library. By default,
+                    this is '<llvm-root>/build'.
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case ${1} in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        --llvm-root)
+            MONOREPO_ROOT="${2}"
+            shift; shift
+            ;;
+        --build-dir)
+            BUILD_DIR="${2}"
+            shift; shift
+            ;;
+        *)
+            BUILDER="${1}"
+            shift
+            ;;
+    esac
+done
+
+MONOREPO_ROOT="${MONOREPO_ROOT:="$(git rev-parse --show-toplevel)"}"
+BUILD_DIR="${BUILD_DIR:=${MONOREPO_ROOT}/build}"
+INSTALL_DIR="${BUILD_DIR}/install"
+
+function skip-bisection() {
+    git bisect skip
+    exit 0
+}
+
+rm -rf "${BUILD_DIR}"
+mkdir -p "${BUILD_DIR}"
+cmake -S "${MONOREPO_ROOT}/llvm" \
+      -B "${BUILD_DIR}" \
+      -GNinja \
+      -DCMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
+      -DLLVM_ENABLE_PROJECTS="clang" \
+      -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi" \
+      -DLLVM_RUNTIME_TARGETS="$(c++ --print-target-triple)" \
+      -DRUNTIMES_BUILD_ALLOW_DARWIN=ON \
+      -DLLVM_ENABLE_ASSERTIONS=ON \
+      -DLLVM_TARGETS_TO_BUILD=Native \
+    || skip-bisection
+
+ninja -C "${BUILD_DIR}" install-runtimes install-clang install-clang-resource-headers || skip-bisection
+
+export SDKROOT="$(xcrun --show-sdk-path)"
+export CXX="${INSTALL_DIR}/bin/clang++"
+export CC="${INSTALL_DIR}/bin/clang"
+
+# Run the given script and optional arguments.
+${@}
