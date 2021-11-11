@@ -148,7 +148,7 @@ function do-install() {
     fi
 
     rm -rf "${INSTALL_DIR}"
-    ninja -C "${BUILD_DIR}" install-{clang,tsan,asan,lsan,ubsan,clang-format,clang-resource-headers}
+    ninja -C "${BUILD_DIR}" install-{clang,clang-format,clang-resource-headers}
     ninja -C "${BUILD_DIR}" install-runtimes
 }
 
