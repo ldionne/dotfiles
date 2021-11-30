@@ -1,2 +1,5 @@
 # Don't jump over functions in the C++ Standard Library by default
 settings set target.process.thread.step-avoid-regexp ""
+
+# Import crashlog by default.
+command script import lldb.macosx.crashlog
