@@ -4,7 +4,7 @@ PROGNAME="$(basename "${0}")"
 function usage() {
 cat <<EOF
 Usage:
-${PROGNAME} <LIB1> <LIB2> [--arch <ARCH>] [--static] [-h|--help]
+${PROGNAME} <LIB1> <LIB2> [--arch <ARCH>] [--static] [--ignore-segment] [-h|--help]
 
 Produce a diff of the exported symbols contained in two libraries.
 
@@ -15,6 +15,11 @@ If --static is specified, the libraries are assumed to be static archives
 instead of shared libraries, and the output of 'nm' is filtered in a way
 that makes more sense for static archives (since symbols are displayed per
 object file).
+
+If --ignore-segment is passed, the segment in which symbols are located is
+ignored. This can be helpful when symbols were moved across segments between
+libraries versions, but one is only looking for actual added or removed symbols
+between those two versions.
 EOF
 }
 
@@ -39,6 +44,10 @@ while [[ $# -gt 0 ]]; do
             static="true"
             shift
             ;;
+        --ignore-segment)
+            ignore_segment="true"
+            shift
+            ;;
         *)
             echo "Invalid argument '${1}'"
             usage
@@ -56,11 +65,13 @@ function trim() {
     awk '{$1=$1};1'
 }
 
+if [[ "${ignore_segment}" == "true" ]]; then segment_flag=""; else segment_flag="-m"; fi
+
 # Get the list of symbols exported by a shared library for the given architecture.
 function symbols-shared() {
     lib="${1}"
     arch="${2}"
-    nm -arch "${arch}" -mg "${lib}" 2>/dev/null | cut -d ' ' -f 2- | trim
+    nm -arch "${arch}" ${segment_flag} -g "${lib}" 2>/dev/null | cut -d ' ' -f 2- | trim | sort
 }
 
 # Get the list of exported symbols contained in a static library for the given
@@ -69,7 +80,7 @@ function symbols-shared() {
 function symbols-static() {
     lib="${1}"
     arch="${2}"
-    nm -arch "${arch}" -omg "${lib}" 2>/dev/null | cut -d ' ' -f 1,3- | tr -s ' ' | cut -d ':' -f 2- | sort
+    nm -arch "${arch}" ${segment_flag} -og "${lib}" 2>/dev/null | cut -d ' ' -f 1,3- | tr -s ' ' | cut -d ':' -f 2- | sort
 }
 
 function symbols() {
@@ -78,5 +89,5 @@ function symbols() {
 
 for arch in $(echo ${archs}); do
     echo "Diff from ${lib1} to ${lib2} for architecture ${arch}"
-    diff <(symbols "${lib1}" "${arch}" | sort) <(symbols "${lib2}" "${arch}" | sort)
+    diff <(symbols "${lib1}" "${arch}") <(symbols "${lib2}" "${arch}")
 done
