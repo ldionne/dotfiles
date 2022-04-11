@@ -28,6 +28,8 @@
         keepBackup = false
 [difftool]
         prompt = false
+[diff]
+        renameLimit = 2000
 [help]
         autocorrect = 1
 [push]
