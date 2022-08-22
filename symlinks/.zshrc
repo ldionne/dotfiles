@@ -65,6 +65,9 @@ setopt HIST_BEEP                 # Beep when accessing nonexistent history.
 # `python` gets the System Python, which is 2.x.
 export PATH=/usr/local/opt/python/libexec/bin:$PATH
 
+# Make sure we find Rust programs installed with cargo
+export PATH="${PATH}:${HOME}/.cargo/bin"
+
 ################################################################################
 # Initialize integrations
 ################################################################################
