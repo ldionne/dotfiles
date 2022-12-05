@@ -113,6 +113,7 @@ export PATH="${HOME}/.bin.private:${PATH}"
 # Make sure Python packages installed with `pip3 install --user` can be found in the PATH
 export PATH="${PATH}:${HOME}/Library/Python/3.7/bin"
 export PATH="${PATH}:${HOME}/Library/Python/3.8/bin"
+export PATH="${PATH}:${HOME}/Library/Python/3.9/bin"
 
 # Make sure we can find Arcanist if it's installed
 export PATH="${PATH}:${HOME}/code/arcanist/bin"
