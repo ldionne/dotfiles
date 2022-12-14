@@ -31,4 +31,4 @@ build_dir="$(realpath "${1}")"
 shift
 
 cmake --build "${build_dir}" --target cxx-test-depends
-"${build_dir}/bin/llvm-lit" -sv ${@}
+"${build_dir}/bin/llvm-lit" ${@}
