@@ -60,21 +60,14 @@ setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks before recording en
 setopt HIST_VERIFY               # Don't execute immediately upon history expansion.
 setopt HIST_BEEP                 # Beep when accessing nonexistent history.
 
-# If Python 3 was installed with Homebrew, make sure the unversionned aliases
-# pointing to Python 3 are found first in the path. By default, unversionned
-# `python` gets the System Python, which is 2.x.
-export PATH=/usr/local/opt/python/libexec/bin:$PATH
-
 # Make sure we find Rust programs installed with cargo
 export PATH="${PATH}:${HOME}/.cargo/bin"
 
 ################################################################################
 # Initialize integrations
 ################################################################################
-# Travis gem
-if [[ -f "${HOME}/.travis/travis.sh" ]]; then
-    source "${HOME}/.travis/travis.sh"
-fi
+# Set PATH, MANPATH, etc., for Homebrew.
+eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # rbenv
 if command -v rbenv &>/dev/null; then
@@ -97,9 +90,6 @@ fi
 ################################################################################
 # Miscellaneous
 ################################################################################
-# Make sure the [fn] + [delete] key results in a forward delete, not a ~
-bindkey "^[[3~" delete-char
-
 # Load any private configurations that I don't want to push to GitHub
 if [[ -f "${HOME}/.zshrc.private" ]]; then
     source "${HOME}/.zshrc.private"
@@ -110,24 +100,8 @@ if [[ -f "${HOME}/.secrets" ]]; then
 fi
 export PATH="${HOME}/.bin.private:${PATH}"
 
-# Make sure Python packages installed with `pip3 install --user` can be found in the PATH
-export PATH="${PATH}:${HOME}/Library/Python/3.7/bin"
-export PATH="${PATH}:${HOME}/Library/Python/3.8/bin"
-export PATH="${PATH}:${HOME}/Library/Python/3.9/bin"
-
 # Make sure we can find Arcanist if it's installed
 export PATH="${PATH}:${HOME}/code/arcanist/bin"
-
-# Set a title for the current tab
-function title {
-    echo -ne "\033]0;"$*"\007"
-}
-
-# Restart all failed Travis jobs of a numbered build
-function travis_restart_failed() {
-  build=${1}
-  travis show ${build} | grep -E "failed|errored" | grep "#" | cut -d " " -f 1 | cut -c 2- | xargs -L 1 travis restart
-}
 
 # Function to download WG21 papers
 function download-paper() {
@@ -207,7 +181,7 @@ function libcxx-cherry-pick() {
 
 # Function to apply a Differential revision made by a contributor that doesn't
 # have commit access to LLVM.
-libcxx-apply-contributor() {
+function libcxx-apply-contributor() {
     rev="${1}"
     author="${2}"
 
@@ -219,3 +193,5 @@ libcxx-apply-contributor() {
 function libcxx-changed-tests() {
     git diff --name-only HEAD~ | grep 'libcxx/test'
 }
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

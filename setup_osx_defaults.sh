@@ -8,9 +8,6 @@
 # Finder
 ##############################################################################
 
-# Menu bar: disable transparency
-defaults write NSGlobalDomain AppleEnableMenuBarTransparency -bool false
-
 # Expand save panel by default
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
 
@@ -20,14 +17,8 @@ defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
 # Disable the “Are you sure you want to open this application?” dialog
 defaults write com.apple.LaunchServices LSQuarantine -bool false
 
-# Disable window animations and Get Info animations
-defaults write com.apple.finder DisableAllAnimations -bool true
-
 # Show all filename extensions
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
-
-# Allow text selection in Quick Look
-defaults write com.apple.finder QLEnableTextSelection -bool true
 
 # Disable the warning when changing a file extension
 defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
@@ -56,10 +47,6 @@ defaults write com.apple.finder AppleShowAllFiles -bool true
 # Make dialog boxes appear faster. For example, the `Save As' box emerges
 # from the window's title bar. Default is .2 seconds.
 defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
-
-# Disable window animations like starting small and zooming in to
-# the correct size.
-defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
 
 # When performing a search, search the current folder by default
 defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
@@ -116,6 +103,10 @@ defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 # Enable full keyboard access for all controls
 # Essentially allows tabbing in modal dialogs
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
+
+# Make the keys repeat faster
+defaults write -g InitialKeyRepeat -int 10 # normal minimum is 15 (225 ms)
+defaults write -g KeyRepeat -int 1 # normal minimum is 2 (30 ms)
 
 ##############################################################################
 # Mail
