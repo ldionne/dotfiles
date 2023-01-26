@@ -67,7 +67,7 @@ export PATH="${PATH}:${HOME}/.cargo/bin"
 # Initialize integrations
 ################################################################################
 # Set PATH, MANPATH, etc., for Homebrew.
-eval "$(/opt/homebrew/bin/brew shellenv)"
+eval "$($(brew --prefix)/bin/brew shellenv)"
 
 # rbenv
 if command -v rbenv &>/dev/null; then
