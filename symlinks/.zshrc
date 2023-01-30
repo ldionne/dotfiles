@@ -66,8 +66,16 @@ export PATH="${PATH}:${HOME}/.cargo/bin"
 ################################################################################
 # Initialize integrations
 ################################################################################
+if [[ "$(uname -m)" == "arm64" ]]; then
+    # On ARM macOS, brew is installed in /opt/homebrew
+    _brew_prefix="/opt/homebrew"
+else
+    # On Intel macOS, brew is installed in /usr/local
+    _brew_prefix="/usr/local"
+fi
+
 # Set PATH, MANPATH, etc., for Homebrew.
-eval "$($(brew --prefix)/bin/brew shellenv)"
+eval "$(${_brew_prefix}/bin/brew shellenv)"
 
 # rbenv
 if command -v rbenv &>/dev/null; then
