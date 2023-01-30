@@ -193,5 +193,3 @@ function libcxx-apply-contributor() {
 function libcxx-changed-tests() {
     git diff --name-only HEAD~ | grep 'libcxx/test'
 }
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
