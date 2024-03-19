@@ -91,9 +91,10 @@ fi
 autoload -Uz compinit && compinit
 
 # fzf key bindings
-if [[ -f "${HOME}/.fzf.zsh" ]]; then
-    source "${HOME}/.fzf.zsh"
+if [[ ! "$PATH" == */opt/homebrew/opt/fzf/bin* ]]; then
+  PATH="${PATH:+${PATH}:}/opt/homebrew/opt/fzf/bin"
 fi
+eval "$(fzf --zsh)"
 
 ################################################################################
 # Miscellaneous
