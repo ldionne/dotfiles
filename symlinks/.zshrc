@@ -35,6 +35,8 @@ if command -v colordiff &>/dev/null; then
     alias diff='colordiff'
 fi
 
+alias libcxx-lit='./libcxx/utils/libcxx-lit'
+
 ################################################################################
 # Environment variables
 ################################################################################
