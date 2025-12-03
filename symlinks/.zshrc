@@ -111,9 +111,6 @@ if [[ -f "${HOME}/.secrets" ]]; then
 fi
 export PATH="${HOME}/.bin.private:${PATH}"
 
-# Make sure we can find Arcanist if it's installed
-export PATH="${PATH}:${HOME}/code/arcanist/bin"
-
 # Function to download WG21 papers
 function download-paper() {
     paper="${1}"
