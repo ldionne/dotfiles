@@ -45,7 +45,11 @@ if which code &>/dev/null; then
     export EDITOR="$(which code) --wait"
 fi
 PROMPT='%n in %~ %# '
-export HISTFILE=${HOME}/.zsh_history # File where history is kept
+
+# Keep the zsh history under ~/Documents, which is synchronized across
+# devices on macOS.
+export HISTFILE=${HOME}/Documents/.zsh_history
+
 export HISTSIZE=10000000         # Maximum number of history lines kept per session
 export SAVEHIST=10000000         # Maximum number of history lines kept across all sessions
 setopt BANG_HIST                 # Treat the '!' character specially during expansion.
