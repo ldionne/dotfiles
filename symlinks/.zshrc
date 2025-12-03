@@ -93,8 +93,8 @@ fi
 autoload -Uz compinit && compinit
 
 # fzf key bindings
-if [[ ! "$PATH" == */opt/homebrew/opt/fzf/bin* ]]; then
-  PATH="${PATH:+${PATH}:}/opt/homebrew/opt/fzf/bin"
+if [[ ! "$PATH" == *${_brew_prefix}/opt/fzf/bin* ]]; then
+  PATH="${PATH:+${PATH}:}${_brew_prefix}/opt/fzf/bin"
 fi
 eval "$(fzf --zsh)"
 
