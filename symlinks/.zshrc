@@ -113,11 +113,6 @@ function download-paper() {
     wget "${url}"
 }
 
-# Find the root of a Git repository
-function git-repo-root() {
-    git rev-parse --show-toplevel
-}
-
 # Detects the sysroot of a Clang compiler and echoes it.
 function detect-clang-sysroot() {
     cxx=${1}
@@ -159,40 +154,4 @@ function clang-format-changed() {
         dir="$(dirname "${file}")"
         (cd "${dir}" && clang-format -i "${file}")
     done
-}
-
-# Function to remove the boilerplate that `arc` adds to every commit.
-# Useful when committing to LLVM.
-function arcfilter () {
-    git log -1 --pretty=%B | awk '/Reviewers:|Subscribers:|Reviewed By:/{p=1} /Differential Revision:/{p=0} !p && !/^Summary:$/ {sub(/^Summary: /,"");print}' | git commit --amend -F -
-}
-
-# Function to cherry-pick commits from `main` onto a release branch of LLVM.
-function libcxx-cherry-pick() {
-    sha="${1}"
-    releaseBranch="${2}"
-    git checkout "${releaseBranch}"
-    git pull
-    git checkout -b "ldionne-zz-cherry-pick-${sha}"
-    git cherry-pick "${sha}"
-    {
-        echo -n "[🍒]" &&
-        git log -1 --pretty=%B | awk '/Reviewers:|Subscribers:|Reviewed By:|Differential Revision:/{p=1} !p' &&
-        echo "(cherry-pick of commit ${sha})"
-    } | git commit --amend -F -
-}
-
-# Function to apply a Differential revision made by a contributor that doesn't
-# have commit access to LLVM.
-function libcxx-apply-contributor() {
-    rev="${1}"
-    author="${2}"
-
-    git checkout main
-    arc patch --revision "${rev}" --nobranch --force
-    git commit --amend --no-edit --author="${author}"
-}
-
-function libcxx-changed-tests() {
-    git diff --name-only HEAD~ | grep 'libcxx/test'
 }
