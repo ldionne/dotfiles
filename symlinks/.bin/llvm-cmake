@@ -1,0 +1,147 @@
+#!/usr/bin/env zsh
+
+set -e
+
+PROGNAME="$(basename "${0}")"
+function usage() {
+cat <<EOF
+Usage:
+${PROGNAME} CONFIGURATION [options] [-- cmake-args...]
+
+This script configures a LLVM build for various pre-set configurations I
+use commonly.
+
+Arguments:
+
+CONFIGURATION           The name of the configuration to build.
+
+--build-dir PATH        Use the given path as a build directory. By default,
+                        '<monorepo-root>/build/CONFIGURATION' is used.
+
+--monorepo-root PATH    Path to the LLVM monorepo. By default, this is the root of the
+                        git repository that we're currently in (or an error if we're
+                        not in a git repository).
+
+--no-remove             Don't remove the build directory before running the CMake
+                        configuration step. This can be used to re-run the configuration
+                        step while reusing previous built products, potentially
+                        saving time.
+
+[-- cmake-args...]      Additional arguments to pass to the CMake configuration step.
+
+[-h|--help]             Display this help and exit.
+EOF
+}
+
+function git-repo-root() {
+    git rev-parse --show-toplevel
+}
+
+#
+# Parse arguments
+#
+for arg in $@; do
+    if [[ "${arg}" == "-h" || "${arg}" == "--help" ]]; then
+        usage
+        exit 0
+    fi
+done
+
+while [[ $# -gt 0 ]]; do
+    case ${1} in
+        --build-dir)
+            build_dir="${2}"
+            shift; shift
+            ;;
+        --monorepo-root)
+            monorepo_root="${2}"
+            shift; shift
+            ;;
+        --no-remove)
+            no_remove="yes"
+            shift
+            ;;
+        --)
+            shift
+            cmake_args=(${@})
+            break
+            ;;
+        *)
+            if [ ! -z ${configuration+x} ]; then
+                echo "Invalid argument '${1}'"
+                usage
+                exit 1
+            fi
+            configuration="${1}"
+            shift
+            ;;
+    esac
+done
+
+if [ -z ${configuration+x} ]; then
+    echo "A configuration must be provided"
+    usage
+    exit 1
+fi
+
+if [ -z ${monorepo_root+x} ]; then
+    monorepo_root="$(git rev-parse --show-toplevel)"
+fi
+
+if [ -z ${build_dir+x} ]; then
+    build_dir="${monorepo_root}/build/${configuration}"
+fi
+
+if [ -z ${no_remove+x} ]; then
+    rm -rf "${build_dir}"
+fi
+
+#
+# Print information
+#
+export CXX=clang++
+export CC=clang
+${CXX} --version
+${CC} --version
+cmake --version
+ninja --version
+
+#
+# Configure the build
+#
+mkdir -p "${build_dir}"
+install_dir="${build_dir}/install"
+
+case "${configuration}" in
+runtimes)
+    cmake -S "${monorepo_root}/runtimes" -B "${build_dir}" -GNinja -DCMAKE_INSTALL_PREFIX="${install_dir}"  \
+        -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind"                                                 \
+        ${cmake_args[@]}
+;;
+crosscompile-ios)
+    executor="python3 ${monorepo_root}/libcxx/utils/ssh.py -v --codesign_identity - --host iphone-rouge"
+    xcrun --sdk iphoneos                                                                                    \
+    cmake -S "${monorepo_root}/runtimes" -B "${build_dir}" -GNinja -DCMAKE_INSTALL_PREFIX="${install_dir}"  \
+            -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi"                                                       \
+            -DLIBCXX_ENABLE_SHARED=OFF                                                                      \
+            -DLIBCXX_ENABLE_STATIC=ON                                                                       \
+            -DLIBCXX_STATICALLY_LINK_ABI_IN_STATIC_LIBRARY=ON                                               \
+            -DLIBCXX_EXECUTOR="${executor}"                                                                 \
+            -DLIBCXXABI_EXECUTOR="${executor}"                                                              \
+            ${cmake_args[@]}
+;;
+bootstrap)
+    cmake -S "${monorepo_root}/llvm" -B "${build_dir}" -GNinja -DCMAKE_INSTALL_PREFIX="${install_dir}"      \
+            -DLLVM_ENABLE_PROJECTS="clang"                                                                  \
+            -DLLVM_ENABLE_RUNTIMES="libunwind;libcxx;libcxxabi;compiler-rt"                                 \
+            -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=OFF                                                        \
+            -DLLVM_RUNTIME_TARGETS="arm64-apple-darwin24.6"                                                 \
+            -DRUNTIMES_BUILD_ALLOW_DARWIN=ON                                                                \
+            ${cmake_args[@]}
+;;
+*)
+    echo "Unknown configuration ${configuration}"
+    usage
+    exit 1
+;;
+esac
