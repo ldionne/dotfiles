@@ -1,0 +1,22 @@
+#!/usr/bin/env zsh
+
+set -e
+
+if [[ ${1} == "-h" || ${1} == "--help" ]]; then
+    echo "Checks out the default branch of a repository and deletes the branch "
+    echo "we were on, assuming that branch corresponds to a Pull Request "
+    exit 0
+fi
+
+default_branch="$(gh repo view --json defaultBranchRef --template '{{.defaultBranchRef.name}}')"
+branch="$(git branch --show-current)"
+
+# First, check whether we're on a PR branch. If not, error out
+# to avoid removing a branch that's not a PR.
+if ! gh pr view >/dev/null 2>&1; then
+    echo "The current branch (${branch}) does not appear to be the target of a PR; aborting"
+    exit 1
+fi
+
+git checkout "${default_branch}"
+git branch -D "${branch}"
