@@ -22,6 +22,7 @@ alias gs='git status -sb'
 alias gsh='git show'
 alias gti='git'
 alias gwt='git whatchanged'
+alias gw='git worktree'
 
 # grc overrides for ls (requires `brew install coreutils`)
 if command -v gls &>/dev/null; then
