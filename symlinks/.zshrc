@@ -21,7 +21,7 @@ alias grm="git status | grep deleted | awk '{print \$3}' | xargs git rm"
 alias gs='git status -sb'
 alias gsh='git show'
 alias gti='git'
-alias gwt='git whatchanged'
+alias gwt='git log --raw --no-merges'
 alias gw='git worktree'
 
 # grc overrides for ls (requires `brew install coreutils`)
