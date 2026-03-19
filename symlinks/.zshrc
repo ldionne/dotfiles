@@ -63,6 +63,10 @@ setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks before recording en
 setopt HIST_VERIFY               # Don't execute immediately upon history expansion.
 setopt HIST_BEEP                 # Beep when accessing nonexistent history.
 
+${HOME}/.bin/archive-zsh-history --history-file "${HISTFILE}" \
+                                 --backup-dir "${HOME}/Documents/.zsh_history_backups" \
+                                 --retention-days 90
+
 ################################################################################
 # Initialize integrations and PATH
 ################################################################################

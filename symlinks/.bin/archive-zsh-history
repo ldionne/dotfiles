@@ -1,0 +1,197 @@
+#!/usr/bin/env zsh
+
+# Backs up the zsh history file to compressed, timestamped snapshots.
+# Designed to run on every shell login; rate-limited to avoid redundant copies.
+
+zmodload zsh/datetime
+
+usage() {
+    cat <<'EOF'
+Usage: archive-zsh-history [OPTIONS]
+
+Backs up the zsh history file to compressed, timestamped snapshots and
+prunes old backups. Designed to run on every shell login.
+
+Required flags:
+  --history-file <path>     Path to the history file to archive
+  --backup-dir <path>       Directory to store backup files
+  --retention-days <n>      Delete backups older than this many days
+
+Optional flags:
+  --min-interval <n>        Minimum minutes between backups (default: 10)
+  --min-backup-count <n>    Always keep at least this many backups (default: 10)
+  --size-threshold <n>      If history file is < this % of the most recent
+                            backup's uncompressed size, skip pruning (default: 50)
+  -h, --help                Show this help message
+EOF
+}
+
+# Parse epoch from a backup filename (.zsh_history.YYYY-MM-DDTHH-MM-SS.gz).
+# Result is stored in $REPLY to avoid a subshell.
+backup_epoch() {
+    local ts="${${1:t}%.gz}"
+    ts="${ts#.zsh_history.}"
+    local d="${ts%%T*}" t="${ts#*T}"
+    strftime -r -s REPLY "%Y-%m-%d %H:%M:%S" "$d ${t//-/:}" 2>/dev/null
+}
+
+# Defaults
+min_interval=10
+min_backup_count=10
+size_threshold=50
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        --history-file)
+            history_file="$2"
+            shift 2
+            ;;
+        --backup-dir)
+            backup_dir="$2"
+            shift 2
+            ;;
+        --retention-days)
+            retention_days="$2"
+            shift 2
+            ;;
+        --min-interval)
+            min_interval="$2"
+            shift 2
+            ;;
+        --min-backup-count)
+            min_backup_count="$2"
+            shift 2
+            ;;
+        --size-threshold)
+            size_threshold="$2"
+            shift 2
+            ;;
+        *)
+            echo "archive-zsh-history: unknown option: $1" >&2
+            usage >&2
+            exit 1
+            ;;
+    esac
+done
+
+# Validate required arguments
+if [[ -z "$history_file" ]]; then
+    echo "archive-zsh-history: --history-file is required" >&2
+    exit 1
+fi
+if [[ -z "$backup_dir" ]]; then
+    echo "archive-zsh-history: --backup-dir is required" >&2
+    exit 1
+fi
+if [[ -z "$retention_days" ]]; then
+    echo "archive-zsh-history: --retention-days is required" >&2
+    exit 1
+fi
+
+if [[ ! -f "$history_file" ]]; then
+    echo "archive-zsh-history: history file not found: $history_file" >&2
+    exit 1
+fi
+
+# Create backup directory if needed
+if [[ ! -d "$backup_dir" ]]; then
+    if ! mkdir -p "$backup_dir"; then
+        echo "archive-zsh-history: failed to create backup directory: $backup_dir" >&2
+        exit 1
+    fi
+fi
+
+# Find the most recent backup by lexicographic sort of filenames
+# (ISO 8601 timestamps in filenames ensure this equals chronological order)
+local -a backup_files
+backup_files=("$backup_dir"/.zsh_history.*.gz(N))
+latest_backup=""
+if [[ ${#backup_files[@]} -gt 0 ]]; then
+    latest_backup="${backup_files[-1]}"
+fi
+
+# Check interval: skip if the most recent backup is too recent
+if [[ -n "$latest_backup" ]]; then
+    if backup_epoch "$latest_backup"; then
+        local elapsed_minutes=$(( (EPOCHSECONDS - REPLY) / 60 ))
+        if [[ $elapsed_minutes -lt $min_interval ]]; then
+            exit 0
+        fi
+    fi
+fi
+
+# Snapshot and compress (atomic write)
+local timestamp
+strftime -s timestamp "%Y-%m-%dT%H-%M-%S" $EPOCHSECONDS
+tmp_snapshot="$backup_dir/.tmp.$$"
+tmp_gz="$backup_dir/.tmp.$$.gz"
+final_name="$backup_dir/.zsh_history.${timestamp}.gz"
+
+if ! cp "$history_file" "$tmp_snapshot"; then
+    echo "archive-zsh-history: failed to snapshot history file" >&2
+    rm -f "$tmp_snapshot"
+    exit 1
+fi
+
+if ! gzip -c "$tmp_snapshot" > "$tmp_gz"; then
+    echo "archive-zsh-history: gzip compression failed" >&2
+    rm -f "$tmp_snapshot" "$tmp_gz"
+    exit 1
+fi
+
+if ! mv "$tmp_gz" "$final_name"; then
+    echo "archive-zsh-history: failed to rename backup to final name" >&2
+    rm -f "$tmp_snapshot" "$tmp_gz"
+    exit 1
+fi
+
+rm -f "$tmp_snapshot"
+
+# Clean up stale temp files from previous failed runs
+rm -f "$backup_dir"/.tmp.*(N) 2>/dev/null
+
+# Pruning with safeguards
+# Compare the current history file size to the most recent *previous* backup
+# to detect potential corruption. If no previous backup existed, skip the size
+# check (there's nothing dangerous to prune).
+if [[ -n "$latest_backup" ]]; then
+    if ! gzip_l_output=$(gzip -l "$latest_backup" 2>/dev/null); then
+        echo "archive-zsh-history: warning: could not read backup size, skipping pruning" >&2
+        exit 0
+    fi
+
+    uncompressed_size=$(awk 'NR==2{print $2}' <<< "$gzip_l_output")
+    if [[ -z "$uncompressed_size" || "$uncompressed_size" -eq 0 ]]; then
+        echo "archive-zsh-history: warning: backup uncompressed size is 0, skipping pruning" >&2
+        exit 0
+    fi
+
+    local current_size=$(wc -c < "$history_file")
+    local size_ratio=$(( current_size * 100 / uncompressed_size ))
+
+    if [[ $size_ratio -lt $size_threshold ]]; then
+        echo "archive-zsh-history: warning: history file is ${size_ratio}% of last backup size (threshold: ${size_threshold}%), skipping pruning" >&2
+        exit 0
+    fi
+fi
+
+# Collect all backups sorted newest-first, prune old ones beyond min_backup_count
+local -a all_backups
+all_backups=("$backup_dir"/.zsh_history.*.gz(NOn))
+
+local cutoff_epoch=$(( EPOCHSECONDS - retention_days * 86400 ))
+local count=0
+for backup in "${all_backups[@]}"; do
+    count=$((count + 1))
+    if [[ $count -le $min_backup_count ]]; then
+        continue
+    fi
+    if backup_epoch "$backup" && [[ $REPLY -lt $cutoff_epoch ]]; then
+        rm -f "$backup"
+    fi
+done
