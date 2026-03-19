@@ -41,10 +41,6 @@ alias libcxx-lit='./libcxx/utils/libcxx-lit'
 ################################################################################
 # Environment variables
 ################################################################################
-export PATH="${HOME}/.bin:${PATH}"
-if which code &>/dev/null; then
-    export EDITOR="$(which code) --wait"
-fi
 PROMPT='%n in %~ %# '
 
 # Keep the zsh history under ~/Documents, which is synchronized across
@@ -67,22 +63,20 @@ setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks before recording en
 setopt HIST_VERIFY               # Don't execute immediately upon history expansion.
 setopt HIST_BEEP                 # Beep when accessing nonexistent history.
 
-# Make sure we find Rust programs installed with cargo
-export PATH="${PATH}:${HOME}/.cargo/bin"
+################################################################################
+# Initialize integrations and PATH
+################################################################################
 
-################################################################################
-# Initialize integrations
-################################################################################
-if [[ "$(uname -m)" == "arm64" ]]; then
-    # On ARM macOS, brew is installed in /opt/homebrew
-    _brew_prefix="/opt/homebrew"
-else
-    # On Intel macOS, brew is installed in /usr/local
-    _brew_prefix="/usr/local"
+# Custom scripts in ~/.bin
+export PATH="${HOME}/.bin:${PATH}"
+
+# Set editor to VS Code
+if which code &>/dev/null; then
+    export EDITOR="$(which code) --wait"
 fi
 
 # Set PATH, MANPATH, etc., for Homebrew.
-eval "$(${_brew_prefix}/bin/brew shellenv)"
+eval "$($(brew --prefix)/bin/brew shellenv)"
 
 # rbenv
 if command -v rbenv &>/dev/null; then
@@ -94,13 +88,20 @@ if [[ -f "${HOME}/.iterm2_shell_integration.zsh" ]]; then
     source "${HOME}/.iterm2_shell_integration.zsh"
 fi
 
+# NPM packages
+if command -v npm &>/dev/null; then
+    export PATH="${PATH}:$(npm config get prefix)/bin"
+fi
+
+# Make sure we find Rust programs installed with cargo
+if [[ -d "${HOME}/.cargo/bin" ]]; then
+    export PATH="${PATH}:${HOME}/.cargo/bin"
+fi
+
 # zsh autocompletion
 autoload -Uz compinit && compinit
 
 # fzf key bindings
-if [[ ! "$PATH" == *${_brew_prefix}/opt/fzf/bin* ]]; then
-  PATH="${PATH:+${PATH}:}${_brew_prefix}/opt/fzf/bin"
-fi
 eval "$(fzf --zsh)"
 
 ################################################################################
