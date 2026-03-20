@@ -7,18 +7,26 @@ import subprocess
 import time
 from pathlib import Path
 
-EXPLAIN_TEXT = """\
-This program watches a directory for .sh scripts and runs them.
 
-To execute a command, write a .sh script to the watched directory. The script
-does not need to be executable. Results will appear alongside the script as:
+def explain_text(directory: str) -> str:
+    return f"""\
+A program is watching the directory {directory} for .sh scripts and will
+run them.
+
+To execute a command, write a .sh script to {directory}.
+The script does not need to be executable but must be self-contained: set your
+own working directory (cd), define any needed environment variables, and do not
+assume anything about the execution environment. Use unique, descriptive filenames
+(e.g. 001-check-disk.sh, 002-install-deps.sh) to avoid collisions and to
+control execution order. Results will appear alongside the script as:
   <script>.stdout  - standard output of the script
   <script>.stderr  - standard error of the script
   <script>.exit    - exit code (as a decimal integer string)
 
-The .exit file is written last. Its presence indicates execution is complete.
-Scripts are run sequentially in alphabetical order. Each script is run at most
-once -- once <script>.exit exists, that script is never re-run.
+Poll for the .exit file to know when execution is complete -- it is written
+last. Scripts are run sequentially in alphabetical order. Each script is run
+at most once -- once <script>.exit exists, that script is never re-run. To
+re-run a command, write a new script with a different name.
 """
 
 _shutdown = False
@@ -88,14 +96,14 @@ def main():
     )
     parser.add_argument(
         "--explain",
-        action="store_true",
-        help="Print protocol description and exit",
+        metavar="DIR",
+        help="Print protocol description for DIR and exit",
     )
 
     args = parser.parse_args()
 
     if args.explain:
-        print(EXPLAIN_TEXT, end="")
+        print(explain_text(args.explain), end="")
         return
 
     if args.directory is None:
