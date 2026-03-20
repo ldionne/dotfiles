@@ -8,24 +8,26 @@ import time
 from pathlib import Path
 
 
-def explain_text(directory: str) -> str:
+def protocol_description(directory: str) -> str:
     return f"""\
-A program is watching the directory {directory} for .sh scripts and will
+# Command execution protocol
+
+A program is watching the directory `{directory}` for `.sh` scripts and will
 run them.
 
-To execute a command, write a .sh script to {directory}.
+To execute a command, write a `.sh` script to `{directory}`.
 The script does not need to be executable but must be self-contained: set your
-own working directory (cd), define any needed environment variables, and do not
+own working directory (`cd`), define any needed environment variables, and do not
 assume anything about the execution environment. Use unique, descriptive filenames
-(e.g. 001-check-disk.sh, 002-install-deps.sh) to avoid collisions and to
+(e.g. `001-check-disk.sh`, `002-install-deps.sh`) to avoid collisions and to
 control execution order. Results will appear alongside the script as:
-  <script>.stdout  - standard output of the script
-  <script>.stderr  - standard error of the script
-  <script>.exit    - exit code (as a decimal integer string)
+- `<script>.stdout` - standard output of the script
+- `<script>.stderr` - standard error of the script
+- `<script>.exit` - exit code (as a decimal integer string)
 
-Poll for the .exit file to know when execution is complete -- it is written
+Poll for the `.exit` file to know when execution is complete -- it is written
 last. Scripts are run sequentially in alphabetical order. Each script is run
-at most once -- once <script>.exit exists, that script is never re-run. To
+at most once -- once `<script>.exit` exists, that script is never re-run. To
 re-run a command, write a new script with a different name.
 """
 
@@ -95,19 +97,23 @@ def main():
         help="Seconds between polls (default: 1)",
     )
     parser.add_argument(
-        "--explain",
+        "--create",
         metavar="DIR",
-        help="Print protocol description for DIR and exit",
+        help="Create DIR and place a README.md describing the protocol, then exit",
     )
 
     args = parser.parse_args()
 
-    if args.explain:
-        print(explain_text(args.explain), end="")
+    if args.create:
+        directory = Path(args.create)
+        directory.mkdir(parents=True, exist_ok=True)
+        readme = directory / "README.md"
+        readme.write_text(protocol_description(str(directory.resolve())))
+        print(f"Created {directory} with {readme}")
         return
 
     if args.directory is None:
-        parser.error("directory is required (unless using --explain)")
+        parser.error("directory is required (unless using --create)")
 
     directory = Path(args.directory)
     if not directory.is_dir():
