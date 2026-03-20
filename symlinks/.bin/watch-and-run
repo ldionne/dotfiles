@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+"""Watch a directory for .sh scripts, execute them, and save results."""
+
+import argparse
+import signal
+import subprocess
+import time
+from pathlib import Path
+
+EXPLAIN_TEXT = """\
+This program watches a directory for executable .sh scripts and runs them.
+
+To execute a command, write a .sh script to the watched directory. The script
+must be executable. Results will appear alongside the script as:
+  <script>.stdout  - standard output of the script
+  <script>.stderr  - standard error of the script
+  <script>.exit    - exit code (as a decimal integer string)
+
+The .exit file is written last. Its presence indicates execution is complete.
+Scripts are run sequentially in alphabetical order. Each script is run at most
+once -- once <script>.exit exists, that script is never re-run.
+"""
+
+_shutdown = False
+
+
+def _handle_signal(signum, frame):
+    global _shutdown
+    _shutdown = True
+
+
+def run_script(script: Path):
+    """Run a single .sh script and write .stdout, .stderr, .exit files."""
+    result = subprocess.run(
+        ["sh", str(script)],
+        cwd=str(script.parent),
+        capture_output=True,
+    )
+    Path(str(script) + ".stdout").write_bytes(result.stdout)
+    Path(str(script) + ".stderr").write_bytes(result.stderr)
+    # .exit is written last so its presence signals completion
+    Path(str(script) + ".exit").write_text(str(result.returncode))
+
+
+def poll_once(directory: Path, done: set):
+    """Find unprocessed .sh scripts and run them."""
+    scripts = sorted(directory.glob("*.sh"))
+    for script in scripts:
+        if _shutdown:
+            break
+        if script in done:
+            continue
+        exit_file = Path(str(script) + ".exit")
+        if exit_file.exists():
+            done.add(script)
+            continue
+        run_script(script)
+        done.add(script)
+
+
+def watch(directory: Path, poll_interval: float):
+    """Main watch loop."""
+    signal.signal(signal.SIGINT, _handle_signal)
+    signal.signal(signal.SIGTERM, _handle_signal)
+
+    done = set()
+    while not _shutdown:
+        poll_once(directory, done)
+        if not _shutdown:
+            time.sleep(poll_interval)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Watch a directory for .sh scripts and run them."
+    )
+    parser.add_argument(
+        "directory",
+        nargs="?",
+        help="Directory to watch for .sh scripts",
+    )
+    parser.add_argument(
+        "--poll-interval",
+        type=float,
+        default=1.0,
+        help="Seconds between polls (default: 1)",
+    )
+    parser.add_argument(
+        "--explain",
+        action="store_true",
+        help="Print protocol description and exit",
+    )
+
+    args = parser.parse_args()
+
+    if args.explain:
+        print(EXPLAIN_TEXT, end="")
+        return
+
+    if args.directory is None:
+        parser.error("directory is required (unless using --explain)")
+
+    directory = Path(args.directory)
+    if not directory.is_dir():
+        parser.error(f"not a directory: {directory}")
+
+    watch(directory, args.poll_interval)
+
+
+if __name__ == "__main__":
+    main()
