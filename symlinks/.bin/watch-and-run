@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Watch a directory for .sh scripts, execute them, and save results."""
+"""Watch a directory for .sh scripts, run them, and save results."""
 
 import argparse
 import signal
@@ -8,10 +8,10 @@ import time
 from pathlib import Path
 
 EXPLAIN_TEXT = """\
-This program watches a directory for executable .sh scripts and runs them.
+This program watches a directory for .sh scripts and runs them.
 
 To execute a command, write a .sh script to the watched directory. The script
-must be executable. Results will appear alongside the script as:
+does not need to be executable. Results will appear alongside the script as:
   <script>.stdout  - standard output of the script
   <script>.stderr  - standard error of the script
   <script>.exit    - exit code (as a decimal integer string)
@@ -31,8 +31,9 @@ def _handle_signal(signum, frame):
 
 def run_script(script: Path):
     """Run a single .sh script and write .stdout, .stderr, .exit files."""
+    print(f"Running {script}")
     result = subprocess.run(
-        ["sh", str(script)],
+        ["sh", str(script.name)],
         cwd=str(script.parent),
         capture_output=True,
     )
