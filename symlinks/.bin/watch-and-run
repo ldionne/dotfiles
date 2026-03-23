@@ -21,7 +21,7 @@ A program is watching the directory `{directory}` for `.sh` scripts and will
 run them.
 
 To execute a command, write a `.sh` script to `{directory}`.
-The script does not need to be executable but must be self-contained: set your
+The script does NOT need to be executable but must be self-contained: set your
 own working directory (`cd`), define any needed environment variables, and do not
 assume anything about the execution environment. Use unique, descriptive filenames
 (e.g. `001-check-disk.sh`, `002-install-deps.sh`) to avoid collisions and to
