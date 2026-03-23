@@ -222,11 +222,32 @@ def watch(directory: Path, poll_interval: float):
     signal.signal(signal.SIGINT, _handle_signal)
     signal.signal(signal.SIGTERM, _handle_signal)
 
+    interactive = sys.stdin.isatty()
     done = set()
+    frame = 0
     while not _shutdown:
         poll_once(directory, done)
         if not _shutdown:
-            time.sleep(poll_interval)
+            if interactive:
+                frame = _idle_spin(directory, poll_interval, frame)
+            else:
+                time.sleep(poll_interval)
+
+
+def _idle_spin(directory, duration, frame):
+    """Show a spinner while waiting for new scripts."""
+    deadline = time.monotonic() + duration
+    while time.monotonic() < deadline and not _shutdown:
+        ch = SPINNER[frame % len(SPINNER)]
+        sys.stdout.write(
+            f"\r\033[K{ch} Watching {directory} directory"
+        )
+        sys.stdout.flush()
+        frame += 1
+        time.sleep(0.1)
+    sys.stdout.write("\r\033[K")
+    sys.stdout.flush()
+    return frame
 
 
 def main():
