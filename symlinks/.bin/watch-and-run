@@ -29,6 +29,12 @@ Poll for the `.exit` file to know when execution is complete -- it is written
 last. Scripts are run sequentially in alphabetical order. Each script is run
 at most once -- once `<script>.exit` exists, that script is never re-run. To
 re-run a command, write a new script with a different name.
+
+## Execution details
+- **Shell**: Scripts are executed with `bash`.
+- **Working directory**: The watched directory (`{directory}`).
+- **Environment**: Inherited from the `watch-and-run` process.
+- **Timeout**: None -- scripts can run indefinitely.
 """
 
 _shutdown = False
@@ -43,7 +49,7 @@ def run_script(script: Path):
     """Run a single .sh script and write .stdout, .stderr, .exit files."""
     print(f"Running {script}")
     result = subprocess.run(
-        ["sh", str(script.name)],
+        ["bash", str(script.name)],
         cwd=str(script.parent),
         capture_output=True,
     )
