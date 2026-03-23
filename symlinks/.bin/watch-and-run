@@ -2,9 +2,14 @@
 """Watch a directory for .sh scripts, run them, and save results."""
 
 import argparse
+import select
 import signal
 import subprocess
+import sys
+import termios
 import time
+import tty
+from datetime import datetime
 from pathlib import Path
 
 
@@ -39,6 +44,12 @@ re-run a command, write a new script with a different name.
 
 _shutdown = False
 
+SPINNER = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+GREEN = "\033[32m"
+YELLOW = "\033[33m"
+RED = "\033[31m"
+RESET = "\033[0m"
+
 
 def _handle_signal(signum, frame):
     global _shutdown
@@ -47,16 +58,147 @@ def _handle_signal(signum, frame):
 
 def run_script(script: Path):
     """Run a single .sh script and write .stdout, .stderr, .exit files."""
-    print(f"Running {script}")
-    result = subprocess.run(
-        ["bash", str(script.name)],
-        cwd=str(script.parent),
-        capture_output=True,
-    )
-    Path(str(script) + ".stdout").write_bytes(result.stdout)
-    Path(str(script) + ".stderr").write_bytes(result.stderr)
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    stdout_path = Path(str(script) + ".stdout")
+    stderr_path = Path(str(script) + ".stderr")
+
+    interactive = sys.stdin.isatty()
+    if not interactive:
+        print(f"[{timestamp}] Running {script.name}")
+
+    with open(stdout_path, "wb") as out_f, open(stderr_path, "wb") as err_f:
+        proc = subprocess.Popen(
+            ["bash", str(script.name)],
+            cwd=str(script.parent),
+            stdout=out_f,
+            stderr=err_f,
+        )
+        if interactive:
+            _interactive_wait(
+                proc, stdout_path, stderr_path, script, script.name, timestamp
+            )
+        else:
+            proc.wait()
+
     # .exit is written last so its presence signals completion
-    Path(str(script) + ".exit").write_text(str(result.returncode))
+    Path(str(script) + ".exit").write_text(str(proc.returncode))
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    color = GREEN if proc.returncode == 0 else RED
+    print(f"{color}[{timestamp}] {script.name} exited with code {proc.returncode}{RESET}")
+
+
+def _interactive_wait(proc, stdout_path, stderr_path, script_path, name, timestamp):
+    """Spin and handle single-key toggle commands while a process runs."""
+    old_settings = termios.tcgetattr(sys.stdin)
+    active_panel = None
+    panels = {
+        "stdout": stdout_path,
+        "stderr": stderr_path,
+        "script": script_path,
+    }
+    display_lines = 0
+    hint = "  (o=stdout, e=stderr, s=script, k=kill)"
+
+    try:
+        tty.setraw(sys.stdin.fileno())
+        frame = 0
+        while proc.poll() is None:
+            ch = SPINNER[frame % len(SPINNER)]
+            sys.stdout.write(
+                f"\r\033[K{YELLOW}[{timestamp}] {ch} Running {name}{hint}{RESET}"
+            )
+            sys.stdout.flush()
+            frame += 1
+
+            rlist, _, _ = select.select([sys.stdin], [], [], 0.1)
+            if rlist:
+                key = sys.stdin.read(1)
+                if key in ("o", "e", "s"):
+                    panel = {"o": "stdout", "e": "stderr", "s": "script"}[key]
+                    if active_panel == panel:
+                        active_panel = None
+                    else:
+                        active_panel = panel
+                    display_lines = _redraw_panels(
+                        active_panel, panels, display_lines, old_settings
+                    )
+                elif key == "k":
+                    # Clear panels before printing kill messages
+                    if display_lines > 0:
+                        sys.stdout.write(f"\033[{display_lines}A")
+                    sys.stdout.write("\r\033[J")
+                    display_lines = 0
+                    active_panel = None
+                    _kill_process(proc, name, old_settings)
+            elif active_panel and frame % 10 == 0:
+                # Auto-refresh visible panel ~once per second
+                display_lines = _redraw_panels(
+                    active_panel, panels, display_lines, old_settings
+                )
+
+        # Clear panels and spinner line
+        if display_lines > 0:
+            sys.stdout.write(f"\033[{display_lines}A")
+        sys.stdout.write("\r\033[J")
+        sys.stdout.flush()
+    finally:
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+
+
+def _redraw_panels(active_panel, panels, prev_lines, old_settings):
+    """Clear previous panel display and redraw the active panel. Returns new line count."""
+    # Move cursor up past previous panel content (escape codes work in raw mode)
+    if prev_lines > 0:
+        sys.stdout.write(f"\033[{prev_lines}A")
+    sys.stdout.write("\r\033[J")
+
+    if not active_panel:
+        sys.stdout.flush()
+        return 0
+
+    # Restore normal terminal mode so \n produces \r\n
+    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+
+    lines = 0
+    path = panels[active_panel]
+    sys.stdout.write(f"--- {active_panel} ---\n")
+    lines += 1
+    try:
+        content = path.read_text(errors="replace")
+        if content:
+            sys.stdout.write(content)
+            if not content.endswith("\n"):
+                sys.stdout.write("\n")
+            lines += content.count("\n") + (0 if content.endswith("\n") else 1)
+        else:
+            sys.stdout.write("(empty)\n")
+            lines += 1
+    except FileNotFoundError:
+        sys.stdout.write("(empty)\n")
+        lines += 1
+    sys.stdout.write(f"--- end {active_panel} ---\n")
+    lines += 1
+
+    sys.stdout.flush()
+    tty.setraw(sys.stdin.fileno())
+    return lines
+
+
+def _kill_process(proc, name, old_settings):
+    """Send SIGTERM, wait 5s, then SIGKILL if needed."""
+    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+    sys.stdout.write(f"\r\033[KSending SIGTERM to {name}...\n")
+    sys.stdout.flush()
+    proc.terminate()
+    try:
+        proc.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        sys.stdout.write(f"Process did not exit, sending SIGKILL...\n")
+        sys.stdout.flush()
+        proc.kill()
+        proc.wait()
+    tty.setraw(sys.stdin.fileno())
 
 
 def poll_once(directory: Path, done: set):
