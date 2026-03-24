@@ -3,6 +3,7 @@
 
 import argparse
 import select
+import shutil
 import signal
 import subprocess
 import sys
@@ -102,11 +103,13 @@ def _interactive_wait(proc, stdout_path, stderr_path, script_path, name, timesta
 
     try:
         tty.setraw(sys.stdin.fileno())
+        cols = shutil.get_terminal_size().columns
         frame = 0
         while proc.poll() is None:
             ch = SPINNER[frame % len(SPINNER)]
+            spinner_text = f"[{timestamp}] {ch} Running {name}{hint}"
             sys.stdout.write(
-                f"\r\033[K{YELLOW}[{timestamp}] {ch} Running {name}{hint}{RESET}"
+                f"\r\033[K{YELLOW}{spinner_text[:cols]}{RESET}"
             )
             sys.stdout.flush()
             frame += 1
@@ -160,24 +163,30 @@ def _redraw_panels(active_panel, panels, prev_lines, old_settings):
     # Restore normal terminal mode so \n produces \r\n
     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
 
+    # Truncate lines to terminal width to prevent wrapping -- wrapped lines
+    # occupy extra visual rows that 'lines' doesn't account for, which breaks
+    # the cursor-up math on the next redraw.
+    cols = shutil.get_terminal_size().columns
+
     lines = 0
     path = panels[active_panel]
-    sys.stdout.write(f"--- {active_panel} ---\n")
+    header = f"--- {active_panel} ---"
+    sys.stdout.write(header[:cols] + "\n")
     lines += 1
     try:
         content = path.read_text(errors="replace")
         if content:
-            sys.stdout.write(content)
-            if not content.endswith("\n"):
-                sys.stdout.write("\n")
-            lines += content.count("\n") + (0 if content.endswith("\n") else 1)
+            for line in content.splitlines():
+                sys.stdout.write(line[:cols] + "\n")
+                lines += 1
         else:
             sys.stdout.write("(empty)\n")
             lines += 1
     except FileNotFoundError:
         sys.stdout.write("(empty)\n")
         lines += 1
-    sys.stdout.write(f"--- end {active_panel} ---\n")
+    footer = f"--- end {active_panel} ---"
+    sys.stdout.write(footer[:cols] + "\n")
     lines += 1
 
     sys.stdout.flush()
