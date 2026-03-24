@@ -32,9 +32,12 @@ control execution order. Results will appear alongside the script as:
 - `<script>.exit` - exit code (as a decimal integer string)
 
 Poll for the `.exit` file to know when execution is complete -- it is written
-last. Scripts are run sequentially in alphabetical order. Each script is run
-at most once -- once `<script>.exit` exists, that script is never re-run. To
-re-run a command, write a new script with a different name.
+last. Prefer polling with the Read tool to avoid requesting user approval for
+the polling loop.
+
+Scripts are run sequentially in alphabetical order. Each script is run at most
+once -- once `<script>.exit` exists, that script is never re-run. To re-run a
+command, write a new script with a different name.
 
 ## Execution details
 - **Shell**: Scripts are executed with `bash`.
