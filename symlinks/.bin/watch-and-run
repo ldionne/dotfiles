@@ -22,11 +22,10 @@ A program is watching the directory `{directory}` for `.sh` scripts and will
 run them.
 
 To execute a command, write a `.sh` script to `{directory}`.
-The script does NOT need to be executable but must be self-contained: set your
-own working directory (`cd`), define any needed environment variables, and do not
-assume anything about the execution environment. Use unique, descriptive filenames
-(e.g. `001-check-disk.sh`, `002-install-deps.sh`) to avoid collisions and to
-control execution order. Results will appear alongside the script as:
+The script does NOT need to be executable but must be self-contained. Use unique,
+descriptive filenames (e.g. `001-check-disk.sh`, `002-install-deps.sh`) to avoid
+collisions and to control execution order. Results will appear alongside the script
+as:
 - `<script>.stdout` - standard output of the script
 - `<script>.stderr` - standard error of the script
 - `<script>.exit` - exit code (as a decimal integer string)
@@ -44,6 +43,9 @@ command, write a new script with a different name.
 - **Working directory**: The watched directory (`{directory}`).
 - **Environment**: Inherited from the `watch-and-run` process.
 - **Timeout**: None -- scripts can run indefinitely.
+
+Assume as little as possible about the execution environment: use absolute
+paths, set the environment variables you need, etc.
 """
 
 _shutdown = False
